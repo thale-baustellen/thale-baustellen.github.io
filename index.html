@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1114">
+<script>try{var r=document.documentElement,h=localStorage.getItem("bs_hell")||"dunkel";if(h==="hell"||(h==="auto"&&matchMedia("(prefers-color-scheme: light)").matches))r.dataset.hell="1";}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&display=swap">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Baustellen">
+<meta name="robots" content="noindex,nofollow">
+<title>Baustellen</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  /* Grund dunkel: Basalt */
+  --bg:#0f1114;--fl:#171a1f;--fl2:#1f232a;--fl3:#282d35;--rand:#2f343d;
+  --text:#eef0f2;--leise:#9ba2ad;
+  --gut:#7ec49a;--gut-w:rgba(126,196,154,.14);--warn:#e5b24f;--warn-w:rgba(229,178,79,.14);--schlecht:#f07a6c;--schlecht-w:rgba(240,122,108,.15);
+  --schatten:none;--r:14px;--nav:66px;color-scheme:dark;
+  /* Akzent: Signalblau */
+  --akz:#5aa9ff;--akz-t:#06111f;--akz-w:rgba(90,169,255,.18);--papier-akz:#1d4f8f;
+}
+:root[data-hell]{
+  /* Grund hell: Kalkstein */
+  --bg:#f2f3f5;--fl:#ffffff;--fl2:#eaedf0;--fl3:#dfe3e8;--rand:#d5dae0;
+  --text:#15181c;--leise:#5d6570;
+  --gut:#177a45;--gut-w:#dcf1e4;--warn:#955f05;--warn-w:#fbefd6;--schlecht:#b42318;--schlecht-w:#fde4e1;
+  --schatten:0 1px 2px rgba(15,20,30,.06),0 2px 10px rgba(15,20,30,.05);color-scheme:light;
+  --akz:#1d64c4;--akz-t:#ffffff;--akz-w:rgba(29,100,196,.11);
+}
+:root{--akz2:var(--akz);--akz2-t:var(--akz-t);--akz2-w:var(--akz-w)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 "Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--akz2)}
+h1,h2,h3{margin:0;line-height:1.2}
+h2{font-size:1.15rem}
+h3{font-size:1rem}
+.leise{color:var(--leise)}
+.klein{font-size:.85rem}
+.rechts{text-align:right}
+.zahl{font-variant-numeric:tabular-nums;white-space:nowrap}
+.fett{font-weight:600}
+.versteckt{display:none!important}
+
+/* Rahmen */
+.kopf{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;background:var(--bg);border-bottom:1px solid var(--rand)}
+.kopf h1{font-family:"Archivo Black","Archivo",system-ui,sans-serif;font-weight:400;letter-spacing:.01em;font-size:1.12rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kopf .zurueck{border:0;background:none;padding:6px 8px 6px 0;font-size:1.4rem;line-height:1;cursor:pointer;color:var(--text)}
+.syncpunkt{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rand);background:var(--fl);border-radius:20px;padding:4px 10px;font-size:.8rem;color:var(--leise);cursor:pointer;white-space:nowrap}
+.syncpunkt i{width:8px;height:8px;border-radius:50%;background:var(--gut);display:inline-block}
+.syncpunkt.offen i{background:var(--warn)}
+.syncpunkt.fehler i,.syncpunkt.offline i{background:var(--schlecht)}
+.syncpunkt.laeuft i{background:var(--akz2);animation:puls 1s infinite}
+.syncpunkt.lokal i{background:var(--leise)}
+@keyframes puls{50%{opacity:.3}}
+.uhrchip{display:flex;align-items:center;gap:8px;margin:10px 14px 0;padding:10px 14px;border-radius:var(--r);background:var(--akz);color:var(--akz-t);cursor:pointer;font-weight:600}
+.uhrchip .uhrzeit{font-variant-numeric:tabular-nums;font-size:1.05rem}
+.uhrchip .uhrprojekt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;opacity:.9}
+.uhrchip.pause{background:var(--warn-w);color:var(--warn)}
+main{padding:14px 14px calc(var(--nav) + 28px + env(safe-area-inset-bottom));max-width:980px;margin:0 auto}
+nav.unten{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;align-items:stretch;height:calc(var(--nav) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--rand)}
+nav.unten a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:var(--leise);font-size:.72rem}
+nav.unten a svg{width:24px;height:24px}
+nav.unten a.aktiv{color:var(--akz2);font-weight:700}
+nav.unten a.aktiv svg{background:var(--akz2-w);border-radius:12px;padding:3px 12px;width:50px;height:30px;box-sizing:border-box}
+nav.unten a.plus span.rund{display:flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:50%;background:var(--akz);color:var(--akz-t);margin-top:-18px;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+nav.unten a.plus svg{width:28px;height:28px}
+@media (min-width:960px){
+  body{padding-left:220px}
+  nav.unten{top:0;right:auto;width:220px;height:auto;flex-direction:column;justify-content:flex-start;padding:20px 10px;border-top:0;border-right:1px solid var(--rand);gap:4px}
+  nav.unten a{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;padding:11px 14px;border-radius:10px;font-size:.95rem}
+  nav.unten a.aktiv{background:var(--akz2-w)}
+  nav.unten a.plus{order:-1;margin-bottom:12px}
+  nav.unten a.plus span.rund{width:36px;height:36px;margin:0;box-shadow:none}
+  nav.unten a.plus svg{width:22px;height:22px}
+  main{padding-bottom:40px}
+}
+
+/* Bausteine */
+.karte{background:var(--fl);border:1px solid var(--rand);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:var(--schatten)}
+.karte>h2,.karte>h3,.abschnitt{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.abschnitt{margin:18px 2px 8px}
+.abschnitt h2{font-size:.75rem;color:var(--leise);text-transform:uppercase;letter-spacing:.11em;font-weight:700}
+.raster{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kennzahl{background:var(--fl);border:1px solid var(--rand);border-radius:var(--r);padding:12px 14px}
+.kennzahl b{display:block;font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:4px}
+.kennzahl span{font-size:.68rem;color:var(--leise);text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.kennzahl b.text{font-size:1rem;font-weight:600;padding-top:4px}
+.kennzahl.gut b{color:var(--gut)}.kennzahl.schlecht b{color:var(--schlecht)}.kennzahl.warn b{color:var(--warn)}
+.liste{background:var(--fl);border:1px solid var(--rand);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:var(--schatten)}
+.zeile{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--rand);cursor:pointer;min-height:56px}
+.zeile:first-child{border-top:0}
+.zeile:active{background:var(--fl2)}
+.zeile .mitte{flex:1;min-width:0}
+.zeile .titel{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zeile .unter{font-size:.85rem;color:var(--leise);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zeile .wert{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.zeile .wert small{display:block;color:var(--leise);font-size:.78rem}
+.zeile.erledigt .titel{text-decoration:line-through;color:var(--leise)}
+.gruppenkopf{padding:8px 14px;background:var(--fl2);font-size:.8rem;font-weight:700;color:var(--akz2);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;border-top:1px solid var(--rand)}
+.gruppenkopf:first-child{border-top:0}
+.leer{text-align:center;color:var(--leise);padding:28px 16px}
+.leer b{display:block;color:var(--text);margin-bottom:4px}
+.badge{display:inline-block;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--fl2);color:var(--leise);white-space:nowrap}
+.badge.anfrage{background:var(--fl3);color:var(--text)}
+.badge.angebot{background:var(--warn-w);color:var(--warn)}
+.badge.beauftragt,.badge.arbeit{background:var(--akz2);color:var(--akz2-t)}
+.badge.fertig{background:var(--gut-w);color:var(--gut)}
+.badge.abgerechnet{background:var(--warn-w);color:var(--warn)}
+.badge.bezahlt{background:var(--gut-w);color:var(--gut)}
+.badge.offen{background:var(--schlecht-w);color:var(--schlecht)}
+.badge.behoben,.badge.angenommen{background:var(--gut-w);color:var(--gut)}
+.badge.abgelehnt{background:var(--schlecht-w);color:var(--schlecht)}
+.badge.entwurf{background:var(--fl3);color:var(--leise)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--rand);background:var(--fl);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:.9rem;white-space:nowrap}
+.chip.aktiv{background:var(--akz2);color:var(--akz2-t);border-color:var(--akz2);font-weight:600}
+.reiter{display:flex;gap:4px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;border-bottom:1px solid var(--rand);scrollbar-width:none;position:sticky;top:57px;background:var(--bg);z-index:10}
+.reiter::-webkit-scrollbar{display:none}
+.reiter a{flex:none;padding:10px 12px;text-decoration:none;color:var(--leise);border-bottom:2px solid transparent;font-size:.92rem}
+.reiter a.aktiv{color:var(--akz2);border-color:var(--akz2);border-bottom-width:3px;font-weight:700;background:var(--akz2-w);border-radius:8px 8px 0 0}
+.suche{width:100%;padding:11px 14px;border:1px solid var(--rand);border-radius:12px;background:var(--fl);margin-bottom:10px}
+
+/* Knöpfe */
+.knopf{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:12px;border:1px solid var(--rand);background:var(--fl);cursor:pointer;font-weight:600;text-decoration:none;color:var(--text);white-space:nowrap}
+.knopf.haupt{background:var(--akz);border-color:var(--akz);color:var(--akz-t)}
+.knopf.gefahr{color:var(--schlecht)}
+.knopf.klein{min-height:34px;padding:6px 12px;font-size:.85rem;border-radius:10px}
+.knopf.breit{width:100%}
+.knopf:disabled{opacity:.5;cursor:default}
+.knopfreihe{display:flex;gap:8px;flex-wrap:wrap}
+.knopfreihe.ende{justify-content:flex-end}
+.fab{position:fixed;right:18px;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom));z-index:25;width:56px;height:56px;border-radius:18px;border:0;background:var(--akz);color:var(--akz-t);font-size:1.8rem;box-shadow:0 6px 18px rgba(0,0,0,.2);cursor:pointer}
+@media (min-width:960px){.fab{bottom:28px;right:28px}}
+.kachelwahl{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.kachelwahl button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px;border-radius:var(--r);border:1px solid var(--rand);background:var(--fl);cursor:pointer;text-align:left;font-weight:600;min-height:84px}
+.kachelwahl button span{font-size:1.4rem}
+.kachelwahl button small{font-weight:400;color:var(--leise);font-size:.8rem}
+
+/* Formulare */
+.formular{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.feld{display:flex;flex-direction:column;gap:5px;grid-column:span 2}
+.feld.halb{grid-column:span 1}
+.feld label,.feldtitel{font-size:.8rem;font-weight:600;color:var(--leise)}
+.feld input,.feld select,.feld textarea{width:100%;padding:11px 12px;border:1px solid var(--rand);border-radius:10px;background:var(--fl);min-height:46px}
+.feld textarea{min-height:90px;resize:vertical}
+.feld input:focus,.feld select:focus,.feld textarea:focus{outline:2px solid var(--akz2);outline-offset:-1px;border-color:transparent}
+.feld .hilfe{font-size:.78rem;color:var(--leise)}
+.feld.check{flex-direction:row;align-items:center;gap:10px}
+.feld.check input{width:22px;height:22px;min-height:0;accent-color:var(--akz)}
+.feld.check label{font-size:.95rem;color:var(--text);font-weight:500}
+.vorschau{grid-column:span 2;background:var(--fl2);border-radius:10px;padding:10px 12px;font-size:.9rem;display:flex;flex-wrap:wrap;gap:4px 16px}
+.vorschau b{font-variant-numeric:tabular-nums}
+.fehlertext{color:var(--schlecht);font-size:.9rem;margin-top:8px}
+
+/* Ebene (Blatt von unten) */
+.ebene{position:fixed;inset:0;z-index:50;background:rgba(6,5,4,.62);display:flex;align-items:flex-end;justify-content:center;animation:ein .15s}
+.blatt{background:var(--bg);width:100%;max-width:640px;max-height:92vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;animation:hoch .2s}
+@media (min-width:700px){.ebene{align-items:center}.blatt{border-radius:20px;max-height:88vh}}
+.blatt>header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--rand)}
+.blatt>header h2{flex:1}
+.blatt>header button{border:0;background:var(--fl2);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem}
+.blatt>.inhalt{overflow-y:auto;padding:16px;flex:1;-webkit-overflow-scrolling:touch}
+.blatt>footer{display:flex;gap:8px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--rand)}
+.blatt>footer .knopf{flex:1}
+.blatt>footer .knopf.gefahr{flex:0 0 auto}
+@keyframes ein{from{opacity:0}}
+@keyframes hoch{from{transform:translateY(40px);opacity:.5}}
+#toast{position:fixed;left:50%;bottom:calc(var(--nav) + 20px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;background:var(--text);color:var(--bg);padding:10px 18px;border-radius:12px;font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+#toast.zeigen{opacity:1}
+
+/* Logo und Briefpapier */
+.kopflogo{height:28px;max-width:110px;object-fit:contain;flex:none}
+.papier{position:relative}
+.papier .papierlogo{max-height:64px;max-width:240px;display:block;margin-bottom:6px}
+.papier .briefpapier{position:absolute;top:0;left:0;width:100%;height:auto;z-index:0;pointer-events:none}
+.papier.mit-bp>*:not(.briefpapier){position:relative;z-index:1}
+.bp-rahmen{width:100%;border-collapse:collapse}
+.bp-rahmen>thead>tr>td,.bp-rahmen>tfoot>tr>td{padding:0}
+.papier.mit-bp{aspect-ratio:auto;min-height:calc(100vw * 1.414);}
+@media (min-width:794px){.papier.mit-bp{min-height:1123px}}
+
+/* Fotos */
+.fotoraster{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px}
+.fotoraster .foto{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--fl2);cursor:pointer}
+.fotoraster .foto img{width:100%;height:100%;object-fit:cover;display:block}
+.fotoraster .foto .x{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;cursor:pointer}
+.fotoraster .foto .hoch{position:absolute;left:4px;bottom:4px;font-size:.65rem;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:1px 5px}
+.fotostreifen{display:flex;gap:6px;overflow-x:auto;margin-top:8px}
+.fotostreifen img{width:64px;height:64px;object-fit:cover;border-radius:8px;flex:none}
+.bildansicht{position:fixed;inset:0;z-index:70;background:#000;display:flex;flex-direction:column}
+.bildansicht img{flex:1;min-height:0;object-fit:contain;width:100%}
+.bildansicht footer{display:flex;gap:8px;padding:12px;color:#fff;align-items:center}
+.bildansicht footer span{flex:1;font-size:.9rem}
+
+/* Tabellen */
+.tabelle{width:100%;border-collapse:collapse;font-size:.9rem}
+.tabelle th{text-align:left;font-size:.75rem;color:var(--leise);font-weight:600;padding:8px 6px;border-bottom:1px solid var(--rand);text-transform:uppercase;letter-spacing:.03em}
+.tabelle td{padding:8px 6px;border-bottom:1px solid var(--rand);vertical-align:top}
+.tabelle td.z,.tabelle th.z{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tabelle tr.summe td{font-weight:700;border-bottom:0}
+.tabelle tr.klickbar{cursor:pointer}
+.tabellenrahmen{overflow-x:auto}
+.balken{height:8px;background:var(--fl2);border-radius:4px;overflow:hidden;min-width:60px}
+.balken i{display:block;height:100%;background:var(--akz2);border-radius:4px}
+.ampel-gut{color:var(--gut)}.ampel-warn{color:var(--warn)}.ampel-schlecht{color:var(--schlecht)}
+
+/* Anmeldung / PIN */
+.vollbild{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.anmeldung{width:100%;max-width:400px}
+.anmeldung .logo{width:64px;height:64px;margin-bottom:14px}
+.anmeldung h1{font-size:1.5rem;margin-bottom:6px}
+.anmeldung p{color:var(--leise);margin:0 0 18px}
+.pinpunkte{display:flex;gap:14px;justify-content:center;margin:18px 0 24px}
+.pinpunkte i{width:16px;height:16px;border-radius:50%;border:2px solid var(--leise)}
+.pinpunkte i.voll{background:var(--akz);border-color:var(--akz)}
+.pinfeld{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:290px;margin:0 auto}
+.pinfeld button{height:64px;border-radius:50%;border:1px solid var(--rand);background:var(--fl);font-size:1.5rem;cursor:pointer}
+.pinfeld button.leer{border:0;background:none;font-size:.9rem;color:var(--leise)}
+
+/* Aufmaß */
+.amzeile{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:6px 8px;padding:10px 0;border-bottom:1px solid var(--rand);align-items:end}
+.amzeile .amtext{grid-column:1/5}
+.amzeile .amx{grid-column:5;min-height:38px}
+.amzeile .amf{display:flex;flex-direction:column;gap:2px;font-size:.72rem;color:var(--leise)}
+.amzeile .amab{grid-column:1/3;display:flex;align-items:center;gap:6px;font-size:.85rem}
+.amzeile .er{grid-column:3/6;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.amfuss{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.aufmass{grid-column:span 2;border:1px solid var(--rand);border-radius:12px;padding:10px;background:var(--fl)}
+.aufmass table{width:100%;border-collapse:collapse;font-size:.85rem}
+.aufmass td{padding:3px 2px}
+.aufmass input{width:100%;padding:7px 6px;border:1px solid var(--rand);border-radius:8px;background:var(--bg);min-height:38px}
+.aufmass input[type=checkbox]{width:20px;height:20px;min-height:0}
+.aufmass .er{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right;padding-left:6px}
+
+/* Dokument / Papier */
+.papier{background:#fff;color:#111;width:100%;max-width:794px;margin:0 auto 16px;padding:48px 52px;box-shadow:0 2px 16px rgba(0,0,0,.12);font-size:13px;line-height:1.45;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.papier .briefkopf{display:flex;justify-content:space-between;gap:20px;border-bottom:2px solid var(--papier-akz);padding-bottom:12px;margin-bottom:28px}
+.papier .briefkopf .firma{font-size:18px;font-weight:700;color:var(--papier-akz)}
+.papier .briefkopf .kontakt{text-align:right;font-size:11px;color:#555}
+.papier .absenderzeile{font-size:9px;color:#777;text-decoration:underline;margin-bottom:4px}
+.papier .anschrift{min-height:100px;margin-bottom:24px}
+.papier .kopfdaten{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;gap:20px}
+.papier .kopfdaten h1{font-size:22px;color:#111}
+.papier .kopfdaten table td{padding:1px 0 1px 14px;font-size:12px}
+.papier .kopfdaten table td:first-child{color:#666;padding-left:0}
+.papier table.pos{width:100%;border-collapse:collapse;margin:14px 0}
+.papier table.pos th{font-size:10.5px;text-transform:uppercase;color:#666;text-align:left;border-bottom:1.5px solid #333;padding:6px 5px}
+.papier table.pos td{padding:6px 5px;border-bottom:1px solid #ddd;vertical-align:top}
+.papier table.pos .z{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.papier table.pos tr.gruppe td{font-weight:700;background:#f4efe9;border-bottom:1px solid #ccc}
+.papier table.pos tr.zwsumme td{font-style:italic;color:#444}
+.papier table.summen{margin-left:auto;border-collapse:collapse;min-width:300px}
+.papier table.summen td{padding:4px 5px}
+.papier table.summen td.z{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.papier table.summen tr.gesamt td{font-weight:700;font-size:14.5px;border-top:1.5px solid #333}
+.papier .text{white-space:pre-wrap;margin:12px 0}
+.papier .fuss{margin-top:36px;padding-top:10px;border-top:1px solid #ccc;font-size:10px;color:#666;display:flex;gap:24px;flex-wrap:wrap}
+.papier .nachweis{page-break-before:always;break-before:page}
+.papier .nachweis h2{font-size:16px;margin:0 0 6px}
+.papier .entwurfmarke{color:#b42318;font-weight:700;font-size:12px;letter-spacing:.1em}
+.dokleiste{position:sticky;top:57px;z-index:10;background:var(--bg);padding:8px 0 12px;display:flex;gap:8px;flex-wrap:wrap}
+.zeileneditor td{padding:4px 3px;vertical-align:middle}
+.zeileneditor input,.zeileneditor select{width:100%;padding:7px 6px;border:1px solid var(--rand);border-radius:8px;background:var(--fl);min-height:38px}
+@media (max-width:640px){.papier{padding:24px 18px;font-size:11.5px}.papier .briefkopf{flex-direction:column}.papier .briefkopf .kontakt{text-align:left}}
+
+@media print{
+  @page{size:A4;margin:16mm 15mm 16mm 18mm}
+  html,body{background:#fff!important;padding:0;color-scheme:light}
+  .kopf,nav.unten,.fab,.dokleiste,.uhrchip,.nicht-drucken,#ebene,#toast{display:none!important}
+  main{padding:0;max-width:none}
+  .papier{box-shadow:none;margin:0;padding:0;max-width:none;font-size:11.5px}
+  .papier.mit-bp{min-height:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .papier.mit-bp .briefpapier{width:210mm;height:297mm;object-fit:fill}
+}
+
+</style>
+</head>
+<body>
+<div id="app"><div class="vollbild"><div class="leise">Baustellen wird geladen …</div></div></div>
+<div id="ebene"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* =========================================================================
+   Baustellen-App · Kern: Hilfsfunktionen, Datenhaltung, Rechenlogik
+   ========================================================================= */
+
+const APP_VERSION = '1.0';
+
+/* ---------- Hilfen ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const neueId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+  : 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+const jetztISO = () => new Date().toISOString();
+const zz = n => String(n).padStart(2, '0');
+const datumISO = d => d.getFullYear() + '-' + zz(d.getMonth() + 1) + '-' + zz(d.getDate());
+const heute = () => datumISO(new Date());
+const zeitHM = d => zz(d.getHours()) + ':' + zz(d.getMinutes());
+const rund = n => Math.round((+n || 0) * 100) / 100;
+const fmtEUR = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
+const eur = n => fmtEUR.format(rund(n));
+const zahl = (n, d = 2) => (+n || 0).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: d });
+const zahlFest = (n, d = 2) => (+n || 0).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d });
+const stdText = n => zahl(n, 2) + ' Std.';
+const datumDE = iso => iso && iso.length >= 10 ? iso.slice(8, 10) + '.' + iso.slice(5, 7) + '.' + iso.slice(0, 4) : '';
+const datumKurz = iso => iso && iso.length >= 10 ? iso.slice(8, 10) + '.' + iso.slice(5, 7) + '.' : '';
+const WOCHENTAGE = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+const MONATE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+const wochentag = iso => WOCHENTAGE[new Date(iso + 'T12:00:00').getDay()];
+const tageDazu = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return datumISO(d); };
+const wochenbeginn = iso => { const d = new Date(iso + 'T12:00:00'); const w = (d.getDay() + 6) % 7; d.setDate(d.getDate() - w); return datumISO(d); };
+
+function num(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  let s = String(v ?? '').trim().replace(/\s|€|%/g, '');
+  if (!s) return 0;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+const zahlFeld = n => (n === '' || n == null) ? '' : String(+(+n).toFixed(4)).replace('.', ',');
+
+function minuten(hm) { if (!hm || !/^\d{1,2}:\d{2}/.test(hm)) return null; const [h, m] = hm.split(':').map(Number); return h * 60 + m; }
+
+const ls = {
+  get(k, d = null) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { v === null || v === undefined ? localStorage.removeItem(k) : localStorage.setItem(k, String(v)); } catch { /* egal */ } },
+  getJ(k, d = null) { try { return JSON.parse(this.get(k)) ?? d; } catch { return d; } },
+  setJ(k, v) { this.set(k, v === null ? null : JSON.stringify(v)); }
+};
+
+async function sha256(text) {
+  if (window.crypto && crypto.subtle) {
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+  let h = 0; for (const c of text) h = (h * 31 + c.charCodeAt(0)) | 0; return 'x' + h;
+}
+
+/* ---------- Datenmodell ---------- */
+const TABELLEN = ['projekte', 'kunden', 'positionen', 'zeiten', 'doku', 'fotos', 'aufgaben',
+  'artikel', 'lohnarten', 'dokumente', 'zahlungen', 'einstellungen'];
+const FELD_ZAHL = new Set(['menge', 'ek', 'aufschlag', 'verschnitt', 'vk', 'pause', 'stunden', 'satz',
+  'kmSatz', 'kmKosten', 'km', 'netto', 'steuer', 'brutto', 'abzug', 'zahlbar', 'betrag', 'sort', 'steuersatz']);
+const FELD_JANEIN = new Set(['geloescht', 'abrechenbar', 'erledigt', 'nachweis']);
+const FELD_JSON = new Set(['aufmass', 'daten']);
+
+function normalisieren(z) {
+  const r = {};
+  for (const k of Object.keys(z)) {
+    if (k === '_sync') continue;
+    let v = z[k];
+    if (FELD_ZAHL.has(k)) v = num(v);
+    else if (FELD_JANEIN.has(k)) v = v === true || v === 'ja' || v === 'TRUE' || v === 'true' || v === 1;
+    else if (FELD_JSON.has(k)) { if (typeof v === 'string') { try { v = v ? JSON.parse(v) : null; } catch { v = null; } } }
+    else v = v == null ? '' : String(v);
+    r[k] = v;
+  }
+  return r;
+}
+
+const STATUS = [
+  ['anfrage', 'Anfrage'], ['angebot', 'Angebot'], ['beauftragt', 'Beauftragt'], ['arbeit', 'In Arbeit'],
+  ['fertig', 'Fertig'], ['abgerechnet', 'Abgerechnet'], ['bezahlt', 'Bezahlt']
+];
+const statusText = s => (STATUS.find(x => x[0] === s) || [s, s || '–'])[1];
+const AKTIV = new Set(['beauftragt', 'arbeit']);
+const TYPEN = { material: 'Material', lohn: 'Lohn', fremd: 'Fremdleistung', fahrt: 'Fahrt', pauschal: 'Pauschale' };
+const DOKU_ARTEN = { bericht: 'Tagesbericht', mangel: 'Mangel', absprache: 'Absprache', notiz: 'Notiz' };
+const ZAHLUNG_ARTEN = { anzahlung: 'Anzahlung', abschlag: 'Abschlag', zahlung: 'Zahlung' };
+
+/* ---------- IndexedDB (mit Rückfall auf Arbeitsspeicher) ---------- */
+const idb = {
+  db: null, mem: null,
+  async open() {
+    try {
+      await new Promise((res, rej) => {
+        const r = indexedDB.open('baustellen', 1);
+        r.onupgradeneeded = () => {
+          const db = r.result;
+          db.createObjectStore('zeilen', { keyPath: 'k' });
+          db.createObjectStore('fotos');
+          db.createObjectStore('meta');
+        };
+        r.onsuccess = () => { this.db = r.result; res(); };
+        r.onerror = () => rej(r.error);
+        r.onblocked = () => rej(new Error('blockiert'));
+      });
+    } catch (e) {
+      console.warn('IndexedDB nicht verfügbar, Daten nur im Arbeitsspeicher', e);
+      this.mem = { zeilen: new Map(), fotos: new Map(), meta: new Map() };
+    }
+  },
+  req(store, mode, fn) {
+    if (this.mem) return Promise.resolve(fn(null));
+    return new Promise((res, rej) => {
+      const tx = this.db.transaction(store, mode);
+      const r = fn(tx.objectStore(store));
+      tx.oncomplete = () => res(r && 'result' in r ? r.result : undefined);
+      tx.onerror = () => rej(tx.error);
+      tx.onabort = () => rej(tx.error);
+    });
+  },
+  get(store, key) { if (this.mem) return Promise.resolve(this.mem[store].get(key)); return this.req(store, 'readonly', s => s.get(key)); },
+  put(store, val, key) {
+    if (this.mem) { this.mem[store].set(key ?? val.k, val); return Promise.resolve(); }
+    return this.req(store, 'readwrite', s => { key === undefined ? s.put(val) : s.put(val, key); });
+  },
+  putViele(store, vals) {
+    if (this.mem) { vals.forEach(v => this.mem[store].set(v.k, v)); return Promise.resolve(); }
+    return this.req(store, 'readwrite', s => { vals.forEach(v => s.put(v)); });
+  },
+  del(store, key) { if (this.mem) { this.mem[store].delete(key); return Promise.resolve(); } return this.req(store, 'readwrite', s => { s.delete(key); }); },
+  alle(store) { if (this.mem) return Promise.resolve([...this.mem[store].values()]); return this.req(store, 'readonly', s => s.getAll()); },
+  leeren(store) { if (this.mem) { this.mem[store].clear(); return Promise.resolve(); } return this.req(store, 'readwrite', s => { s.clear(); }); }
+};
+
+/* ---------- Speicher im Arbeitsspeicher ---------- */
+const D = {};
+TABELLEN.forEach(t => { D[t] = new Map(); });
+const META = { offen: {}, seit: '', fotoOffen: [] };
+
+async function datenLaden() {
+  await idb.open();
+  const zeilen = await idb.alle('zeilen');
+  zeilen.forEach(e => { if (D[e.t]) D[e.t].set(e.z.id, e.z); });
+  META.offen = (await idb.get('meta', 'offen')) || {};
+  META.seit = (await idb.get('meta', 'seit')) || '';
+  META.fotoOffen = (await idb.get('meta', 'fotoOffen')) || [];
+}
+async function metaSichern() {
+  await idb.put('meta', META.offen, 'offen');
+  await idb.put('meta', META.seit, 'seit');
+  await idb.put('meta', META.fotoOffen, 'fotoOffen');
+}
+
+const alle = t => [...D[t].values()].filter(z => !z.geloescht);
+const hol = (t, id) => { const z = id && D[t].get(id); return z && !z.geloescht ? z : null; };
+const vonProjekt = (t, pid) => alle(t).filter(z => z.projektId === pid);
+
+async function speichere(t, z, still) {
+  if (!z.id) z.id = neueId();
+  if (!z.erstellt) z.erstellt = jetztISO();
+  z.geaendert = jetztISO();
+  if (z.geloescht === undefined) z.geloescht = false;
+  D[t].set(z.id, z);
+  await idb.put('zeilen', { k: t + '|' + z.id, t, z });
+  META.offen[t + '|' + z.id] = true;
+  await idb.put('meta', META.offen, 'offen');
+  if (!still && typeof syncBald === 'function') syncBald();
+  return z;
+}
+async function loesche(t, id) { const z = D[t].get(id); if (!z) return; z.geloescht = true; await speichere(t, z); }
+async function wiederherstellen(t, id) { const z = D[t].get(id); if (!z) return; z.geloescht = false; await speichere(t, z); }
+
+/* ---------- Einstellungen ---------- */
+const STANDARD = {
+  firma: '', inhaber: '', strasse: '', ort: '', telefon: '', email: '', web: '',
+  bank: '', iban: '', bic: '', steuernr: '',
+  aufschlag: '30', verschnitt: '10', kmSatz: '0,50', kmKosten: '0,30', standardLohnart: 'lohn-standard',
+  steuermodus: 'intern', steuersatz: '19', zahlungsziel: '14',
+  gewerke: 'Holzbau / Tragwerk\nAusbau / Montage\nOberfläche / Entsorgung',
+  einheiten: 'Stk\nlfm\nm²\nm³\nkg\nStd.\nkm\npsch.\nSatz',
+  nrProjekt: 'P-{JJJJ}-{NNN}', nrAngebot: 'A-{JJJJ}-{NNN}', nrAbrechnung: 'R-{JJJJ}-{NNN}',
+  angebotEinleitung: 'vielen Dank für Ihre Anfrage. Gerne biete ich Ihnen die folgenden Leistungen an:',
+  angebotSchluss: 'Das Angebot ist 30 Tage gültig. Ich freue mich auf Ihren Auftrag.',
+  abrechnungEinleitung: 'für die ausgeführten Arbeiten erlaube ich mir, wie folgt abzurechnen:',
+  abrechnungSchluss: 'Bitte überweisen Sie den Betrag innerhalb von {ZIEL} Tagen auf das unten genannte Konto. Vielen Dank für Ihren Auftrag.'
+};
+function E(k) { const z = hol('einstellungen', k); return z ? z.wert : (STANDARD[k] ?? ''); }
+const En = k => num(E(k));
+async function setzeE(k, wert) {
+  const alt = D.einstellungen.get(k);
+  if (alt && !alt.geloescht && alt.wert === String(wert)) return;
+  await speichere('einstellungen', Object.assign(alt || { id: k }, { wert: String(wert), geloescht: false }));
+}
+const zeilenListe = k => E(k).split('\n').map(s => s.trim()).filter(Boolean);
+const gewerke = () => zeilenListe('gewerke');
+const einheiten = () => zeilenListe('einheiten');
+
+async function grunddatenAnlegen() {
+  if (!D.lohnarten.has('lohn-standard')) {
+    await speichere('lohnarten', { id: 'lohn-standard', name: 'Tischlermeister', satz: 40 }, true);
+  }
+}
+const lohnarten = () => alle('lohnarten').sort((a, b) => a.name.localeCompare(b.name, 'de'));
+const lohnart = id => hol('lohnarten', id) || hol('lohnarten', E('standardLohnart')) || lohnarten()[0] || { id: '', name: 'Arbeitszeit', satz: 0 };
+
+/* ---------- Nummernkreise ---------- */
+function naechsteNr(musterKey, tabelle, filter) {
+  const jahr = String(new Date().getFullYear());
+  const muster = E(musterKey) || STANDARD[musterKey];
+  const vor = muster.split('{NNN}')[0].replace('{JJJJ}', jahr);
+  const nach = (muster.split('{NNN}')[1] || '').replace('{JJJJ}', jahr);
+  let max = 0;
+  [...D[tabelle].values()].filter(z => !filter || filter(z)).forEach(z => {
+    const nr = z.nr || '';
+    if (nr.startsWith(vor) && nr.endsWith(nach)) {
+      const n = parseInt(nr.slice(vor.length, nr.length - nach.length), 10);
+      if (n > max) max = n;
+    }
+  });
+  return vor + String(max + 1).padStart(3, '0') + nach;
+}
+
+/* ---------- Rechenlogik ---------- */
+function posWerte(p) {
+  const m = +p.menge || 0, ek = +p.ek || 0;
+  const a = (+p.aufschlag || 0) / 100, v = (+p.verschnitt || 0) / 100;
+  let ekS = 0, vkS = 0;
+  switch (p.typ) {
+    case 'material': ekS = m * (1 + v) * ek; vkS = ekS * (1 + a); break;
+    case 'fremd': ekS = m * ek; vkS = ekS * (1 + a); break;
+    case 'lohn': ekS = 0; vkS = m * (+p.vk || 0); break;
+    case 'fahrt': ekS = m * ek; vkS = m * (+p.vk || 0); break;
+    default: ekS = m * ek; vkS = m * (+p.vk || 0);
+  }
+  const ep = m ? rund(vkS / m) : rund(vkS);
+  return { ek: rund(ekS), vk: m ? rund(m * ep) : rund(vkS), ep, std: p.typ === 'lohn' ? m : 0 };
+}
+
+function aufmassMenge(zeilen) {
+  let s = 0;
+  (zeilen || []).forEach(r => {
+    const f = ['n', 'l', 'b', 'h'].map(k => r[k] === '' || r[k] == null ? null : num(r[k])).filter(x => x !== null);
+    if (!f.length) return;
+    const w = f.reduce((a, b) => a * b, 1);
+    s += r.abzug ? -w : w;
+  });
+  return Math.round(s * 1000) / 1000;
+}
+
+function zeitStunden(z) {
+  const v = minuten(z.von), b = minuten(z.bis);
+  if (v === null || b === null) return +z.stunden || 0;
+  let d = b - v; if (d < 0) d += 24 * 60;
+  return Math.max(0, Math.round((d - (+z.pause || 0)) / 60 * 100) / 100);
+}
+
+function angebotFuer(pid) {
+  const a = alle('dokumente').filter(d => d.projektId === pid && d.art === 'angebot' && d.status !== 'entwurf');
+  return a.find(d => d.status === 'angenommen') || a.filter(d => d.status !== 'abgelehnt').sort((x, y) => (y.datum || '').localeCompare(x.datum || ''))[0] || null;
+}
+
+function projektZahlen(pid) {
+  const p = hol('projekte', pid) || {};
+  const soll = { ek: 0, vk: 0, std: 0, mat: 0, fremd: 0, fahrt: 0, lohn: 0 };
+  const ist = { std: 0, lohnVk: 0, mat: 0, fremd: 0, fahrt: 0, sonst: 0, vk: 0, ek: 0, offenStd: 0 };
+  vonProjekt('positionen', pid).forEach(pos => {
+    const w = posWerte(pos);
+    if (pos.bereich === 'ist') {
+      ist.vk += w.vk; ist.ek += w.ek;
+      if (pos.typ === 'material') ist.mat += w.ek;
+      else if (pos.typ === 'fremd') ist.fremd += w.ek;
+      else if (pos.typ === 'fahrt') ist.fahrt += w.ek;
+      else ist.sonst += w.ek;
+    } else {
+      soll.ek += w.ek; soll.vk += w.vk; soll.std += w.std;
+      if (pos.typ === 'material') soll.mat += w.ek;
+      else if (pos.typ === 'fremd') soll.fremd += w.ek;
+      else if (pos.typ === 'fahrt') soll.fahrt += w.ek;
+      else if (pos.typ === 'lohn') soll.lohn += w.vk;
+    }
+  });
+  vonProjekt('zeiten', pid).forEach(z => {
+    ist.std += +z.stunden || 0;
+    if (z.abrechenbar) { const v = rund((+z.stunden || 0) * (+z.satz || 0)); ist.lohnVk += v; ist.vk += v; }
+    if (z.abrechenbar && !z.abgerechnetIn) ist.offenStd += +z.stunden || 0;
+  });
+  const abr = alle('dokumente').filter(d => d.projektId === pid && d.art === 'abrechnung' && d.status !== 'entwurf');
+  const abgerechnetNetto = abr.reduce((s, d) => s + (+d.netto || 0), 0);
+  const abgerechnetBrutto = abr.reduce((s, d) => s + (+d.brutto || 0), 0);
+  const bezahlt = vonProjekt('zahlungen', pid).reduce((s, z) => s + (+z.betrag || 0), 0);
+  const ang = angebotFuer(pid);
+  const angebotNetto = ang ? +ang.netto || 0 : 0;
+  let erloes, erloesArt;
+  if (abgerechnetNetto > 0) { erloes = abgerechnetNetto; erloesArt = 'abgerechnet'; }
+  else if (p.art === 'festpreis') { erloes = angebotNetto || soll.vk; erloesArt = angebotNetto ? 'laut Angebot' : 'laut Kalkulation'; }
+  else { erloes = ist.vk; erloesArt = 'laut Erfassung'; }
+  const kosten = ist.ek;
+  const gewinn = erloes - kosten;
+  return {
+    soll, ist, angebotNetto, abgerechnetNetto, abgerechnetBrutto, bezahlt,
+    offen: rund(abgerechnetBrutto - bezahlt), erloes, erloesArt, kosten, gewinn,
+    stundenlohn: ist.std > 0 ? gewinn / ist.std : null
+  };
+}
+
+function abweichung(soll, ist) {
+  if (!soll) return { text: ist ? 'ohne Soll' : '–', klasse: '' };
+  const p = (ist - soll) / soll * 100;
+  return { text: (p > 0 ? '+' : '') + zahl(p, 0) + ' %', klasse: p > 10 ? 'ampel-schlecht' : p > 0 ? 'ampel-warn' : 'ampel-gut' };
+}
+
+const projektName = pid => { const p = hol('projekte', pid); return p ? p.name : '–'; };
+const kundeName = kid => { const k = hol('kunden', kid); return k ? k.name : ''; };
+
+/* =========================================================================
+   Abgleich mit dem Backend und Fotos
+   ========================================================================= */
+
+const modus = () => ls.get('bs_modus', '');          // 'server' | 'lokal' | ''
+const SY = { status: 'ok', laeuft: false, nochmal: false, timer: null, fehler: '', zuletzt: null };
+
+async function api(aktion, daten = {}) {
+  const url = ls.get('bs_url');
+  if (!url) throw new Error('Keine Backend-Adresse eingetragen.');
+  let r;
+  try {
+    r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ aktion, token: ls.get('bs_token') }, daten))
+    });
+  } catch (e) {
+    throw new Error('Keine Verbindung zum Backend.');
+  }
+  if (!r.ok) throw new Error('Das Backend antwortet nicht (' + r.status + ').');
+  let j;
+  try { j = await r.json(); } catch { throw new Error('Unerwartete Antwort – ist die Web-App für „Jeder“ freigegeben?'); }
+  if (!j.ok) { const e = new Error(j.fehler || 'Unbekannter Fehler'); e.abgemeldet = !!j.abgemeldet; throw e; }
+  return j;
+}
+
+function syncBald(ms = 1500) {
+  if (modus() !== 'server') return;
+  clearTimeout(SY.timer);
+  SY.timer = setTimeout(sync, ms);
+  syncAnzeigen();
+}
+
+const anzahlOffen = () => Object.keys(META.offen).length + META.fotoOffen.length;
+
+async function sync() {
+  if (modus() !== 'server' || !ls.get('bs_token')) return;
+  if (SY.laeuft) { SY.nochmal = true; return; }
+  if (!navigator.onLine) { SY.status = 'offline'; syncAnzeigen(); return; }
+  SY.laeuft = true; SY.status = 'laeuft'; syncAnzeigen();
+  let geaendert = false;
+  try {
+    await fotosHochladen();
+    let runde = 0;
+    do {
+      const paket = [];
+      let groesse = 0;
+      for (const k of Object.keys(META.offen)) {
+        const [t, id] = k.split('|');
+        const z = D[t] && D[t].get(id);
+        if (!z) { delete META.offen[k]; continue; }
+        const s = JSON.stringify(z).length;
+        if (paket.length && (groesse + s > 1500000 || paket.length >= 300)) break;
+        paket.push({ t, z }); groesse += s;
+      }
+      const j = await api('sync', { seit: META.seit, aenderungen: paket });
+      for (const a of paket) {
+        const akt = D[a.t].get(a.z.id);
+        if (akt && akt.geaendert === a.z.geaendert) delete META.offen[a.t + '|' + a.z.id];
+      }
+      if (await uebernehmen(j.daten)) geaendert = true;
+      META.seit = j.serverZeit;
+      await metaSichern();
+      runde++;
+    } while (Object.keys(META.offen).length && runde < 20);
+    SY.status = 'ok'; SY.fehler = ''; SY.zuletzt = new Date();
+  } catch (e) {
+    if (e.abgemeldet) { SY.laeuft = false; abgemeldet(); return; }
+    SY.status = navigator.onLine ? 'fehler' : 'offline';
+    SY.fehler = e.message;
+  } finally {
+    SY.laeuft = false;
+    syncAnzeigen();
+    if (geaendert) neuZeichnenWennRuhig();
+    if (SY.nochmal) { SY.nochmal = false; syncBald(400); }
+  }
+}
+
+async function uebernehmen(daten) {
+  let geaendert = false;
+  const schreiben = [];
+  for (const t of TABELLEN) {
+    for (const roh of (daten && daten[t]) || []) {
+      if (!roh.id) continue;
+      const z = normalisieren(roh);
+      const lokal = D[t].get(z.id);
+      const k = t + '|' + z.id;
+      if (lokal && META.offen[k] && (lokal.geaendert || '') > (z.geaendert || '')) continue;
+      if (lokal && lokal.geaendert === z.geaendert) { delete META.offen[k]; continue; }
+      D[t].set(z.id, z);
+      delete META.offen[k];
+      schreiben.push({ k, t, z });
+      geaendert = true;
+    }
+  }
+  if (schreiben.length) await idb.putViele('zeilen', schreiben);
+  return geaendert;
+}
+
+function syncAnzeigen() {
+  const el = $('#syncpunkt');
+  if (!el) return;
+  let klasse = '', text = '';
+  const offen = anzahlOffen();
+  if (modus() !== 'server') { klasse = 'lokal'; text = 'Nur dieses Gerät'; }
+  else if (SY.laeuft || SY.status === 'laeuft') { klasse = 'laeuft'; text = 'Abgleich …'; }
+  else if (!navigator.onLine || SY.status === 'offline') { klasse = 'offline'; text = offen ? 'Offline · ' + offen + ' offen' : 'Offline'; }
+  else if (SY.status === 'fehler') { klasse = 'fehler'; text = 'Abgleich gestört'; }
+  else if (offen) { klasse = 'offen'; text = offen + ' offen'; }
+  else { klasse = ''; text = 'Abgeglichen'; }
+  el.className = 'syncpunkt ' + klasse;
+  el.innerHTML = '<i></i>' + esc(text);
+  el.title = SY.fehler || (SY.zuletzt ? 'Zuletzt ' + zeitHM(SY.zuletzt) : '');
+}
+
+/* ---------- Fotos ---------- */
+
+function bildLaden(datei) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(datei);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Bild konnte nicht gelesen werden.')); };
+    img.src = url;
+  });
+}
+function verkleinern(img, max, qualitaet) {
+  const f = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * f);
+  c.height = Math.round(img.naturalHeight * f);
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+  g.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', qualitaet);
+}
+
+/** Legt aus einer Bilddatei einen Foto-Eintrag an (offline möglich). */
+async function fotoAnlegen(datei, felder, opt = {}) {
+  const img = await bildLaden(datei);
+  const voll = verkleinern(img, opt.max || 1600, opt.qualitaet || 0.82);
+  const thumb = verkleinern(img, 320, 0.6);
+  const id = opt.id || neueId();
+  if (opt.id && D.fotos.get(id)) { const alt = D.fotos.get(id); Object.assign(felder, { driveId: '' }); META.fotoOffen = META.fotoOffen.filter(x => x !== id); }
+  await idb.put('fotos', voll, id);
+  const z = Object.assign({ id, thumb, driveId: '', beschreibung: '', aufgenommen: jetztISO() }, felder);
+  await speichere('fotos', z, true);
+  if (modus() === 'server') { META.fotoOffen.push(id); await metaSichern(); syncBald(); }
+  return z;
+}
+
+async function fotosHochladen() {
+  const liste = [...META.fotoOffen];
+  for (const id of liste) {
+    const z = D.fotos.get(id);
+    const weg = () => { META.fotoOffen = META.fotoOffen.filter(x => x !== id); };
+    if (!z || z.geloescht || z.driveId) { weg(); continue; }
+    const voll = await idb.get('fotos', id);
+    if (!voll) { weg(); continue; }
+    const name = z.bezugTyp === 'briefpapier' ? id + '-' + Date.parse(z.aufgenommen || jetztISO()) : id;
+    const j = await api('fotoHoch', { id: name, daten: voll.split(',')[1], mime: 'image/jpeg', beschreibung: z.beschreibung || '' });
+    z.driveId = j.driveId;
+    await idb.put('fotos', voll, id + '|' + j.driveId);
+    await idb.del('fotos', id);
+    await speichere('fotos', z, true);
+    weg();
+    await metaSichern();
+  }
+}
+
+async function fotoVoll(id) {
+  const z = D.fotos.get(id);
+  if (!z) return null;
+  const lokal = await idb.get('fotos', z.driveId ? id + '|' + z.driveId : id) || (z.driveId ? null : await idb.get('fotos', id));
+  if (lokal) return lokal;
+  if (z.driveId && modus() === 'server' && navigator.onLine) {
+    try {
+      const j = await api('fotoLaden', { driveId: z.driveId });
+      const url = 'data:' + (j.mime || 'image/jpeg') + ';base64,' + j.daten;
+      await idb.put('fotos', url, id + '|' + z.driveId);
+      return url;
+    } catch (e) { console.warn(e); }
+  }
+  return z.thumb || null;
+}
+
+const fotosZu = (typ, id) => alle('fotos').filter(f => f.bezugTyp === typ && f.bezugId === id)
+  .sort((a, b) => (a.aufgenommen || '').localeCompare(b.aufgenommen || ''));
+
+/* =========================================================================
+   Oberfläche: Rahmen, Navigation, Blätter, Formulare, Anmeldung, PIN
+   ========================================================================= */
+
+const ICON = {
+  start: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
+  projekte: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M8 6V4h8v2"/><path d="M3 12h18"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  kalender: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 15l2 2 4-4"/></svg>',
+  mehr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+  logo: '<svg viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1d64c4"/><path d="M10 44 32 16l22 28" fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M14 44h36M32 16v28M21 44l11-14 11 14" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+};
+
+const HELLIGKEIT = [['dunkel', 'Dunkel'], ['hell', 'Hell'], ['auto', 'Wie das Gerät']];
+function themeSetzen(hell) {
+  if (hell) ls.set('bs_hell', hell);
+  const h = ls.get('bs_hell', 'dunkel');
+  const istHell = h === 'hell' || (h === 'auto' && matchMedia('(prefers-color-scheme: light)').matches);
+  const r = document.documentElement;
+  if (istHell) r.dataset.hell = '1'; else delete r.dataset.hell;
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.content = getComputedStyle(r).getPropertyValue('--bg').trim() || '#0f1114';
+}
+themeSetzen();
+matchMedia('(prefers-color-scheme: light)').addEventListener?.('change', () => themeSetzen());
+
+const UI = { blatt: null, entsperrt: false, versteckt: 0, nachSchliessen: false };
+
+/* ---------- Kleine Helfer ---------- */
+function toast(text, ms = 2600) {
+  const t = $('#toast');
+  t.textContent = text; t.classList.add('zeigen');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('zeigen'), ms);
+}
+const badge = (klasse, text) => `<span class="badge ${esc(klasse)}">${esc(text)}</span>`;
+const leer = (titel, text = '') => `<div class="leer"><b>${esc(titel)}</b>${esc(text)}</div>`;
+const optionen = (liste, wert) => liste.map(o => {
+  const [v, t] = Array.isArray(o) ? o : [o, o];
+  return `<option value="${esc(v)}"${String(v) === String(wert ?? '') ? ' selected' : ''}>${esc(t)}</option>`;
+}).join('');
+const projektOptionen = (wert, nurAktive) => {
+  let liste = alle('projekte').sort((a, b) => (b.nr || '').localeCompare(a.nr || ''));
+  if (nurAktive) liste = liste.filter(p => !['bezahlt'].includes(p.status) || p.id === wert);
+  return optionen([['', '– Projekt wählen –'], ...liste.map(p => [p.id, (p.nr ? p.nr + ' · ' : '') + p.name])], wert);
+};
+
+/* ---------- Formulare ---------- */
+/** felder: [{n:name, l:label, t:typ, o:optionen, h:hilfe, halb, req, p:placeholder, a:attribute}] */
+function formular(felder, w = {}) {
+  return '<div class="formular">' + felder.map(f => {
+    if (f.t === 'html') return f.html;
+    const id = 'f_' + f.n;
+    const v = w[f.n] ?? f.d ?? '';
+    const kl = 'feld' + (f.halb ? ' halb' : '') + (f.t === 'check' ? ' check' : '');
+    const req = f.req ? ' required' : '';
+    const ph = f.p ? ` placeholder="${esc(f.p)}"` : '';
+    const at = f.a || '';
+    let inp;
+    switch (f.t) {
+      case 'textarea': inp = `<textarea id="${id}" name="${f.n}"${ph}${req} ${at}>${esc(v)}</textarea>`; break;
+      case 'select': inp = `<select id="${id}" name="${f.n}"${req} ${at}>${f.o}</select>`; break;
+      case 'check': return `<div class="${kl}"><input type="checkbox" id="${id}" name="${f.n}"${v ? ' checked' : ''} ${at}><label for="${id}">${esc(f.l)}</label></div>`;
+      case 'zahl': inp = `<input id="${id}" name="${f.n}" inputmode="decimal" data-zahl="1" value="${esc(zahlFeld(v))}"${ph}${req} ${at}>`; break;
+      case 'datum': inp = `<input id="${id}" name="${f.n}" type="date" value="${esc(v)}"${req} ${at}>`; break;
+      case 'zeit': inp = `<input id="${id}" name="${f.n}" type="time" value="${esc(v)}"${req} ${at}>`; break;
+      default: inp = `<input id="${id}" name="${f.n}" type="${f.t || 'text'}" value="${esc(v)}"${ph}${req} ${at}>`;
+    }
+    return `<div class="${kl}" data-feld="${f.n}"><label for="${id}">${esc(f.l)}</label>${inp}${f.h ? `<span class="hilfe">${esc(f.h)}</span>` : ''}</div>`;
+  }).join('') + '</div>';
+}
+function formWerte(el) {
+  const w = {};
+  $$('input[name],select[name],textarea[name]', el).forEach(i => {
+    if (i.type === 'checkbox') w[i.name] = i.checked;
+    else if (i.dataset.zahl) w[i.name] = num(i.value);
+    else w[i.name] = i.value.trim();
+  });
+  return w;
+}
+function pflichtPruefen(el) {
+  const fehlt = $$('[required]', el).find(i => !String(i.value).trim());
+  if (fehlt) { fehlt.focus(); toast('Bitte „' + ($('label[for="' + fehlt.id + '"]', el)?.textContent || 'Pflichtfeld') + '“ ausfüllen.'); return false; }
+  return true;
+}
+
+/* ---------- Blatt (Dialog von unten) ---------- */
+function blattOeffnen({ titel, html, knoepfe = [], breit, beimOeffnen, beimSchliessen }) {
+  blattSchliessen(true);
+  const eb = document.createElement('div');
+  eb.className = 'ebene';
+  eb.innerHTML = `<div class="blatt" role="dialog" aria-modal="true"${breit ? ' style="max-width:900px"' : ''}>
+    <header><h2>${esc(titel)}</h2><button type="button" data-zu aria-label="Schließen">✕</button></header>
+    <div class="inhalt">${html}</div>
+    ${knoepfe.length ? `<footer>${knoepfe.map((k, i) => `<button type="button" class="knopf ${k.klasse || ''}" data-k="${i}">${esc(k.text)}</button>`).join('')}</footer>` : ''}
+  </div>`;
+  $('#ebene').appendChild(eb);
+  const blatt = $('.blatt', eb);
+  UI.blatt = { eb, beimSchliessen };
+  eb.addEventListener('click', async ev => {
+    if (ev.target === eb || ev.target.closest('[data-zu]')) { blattSchliessen(); return; }
+    const b = ev.target.closest('footer [data-k]');
+    if (b) {
+      const k = knoepfe[+b.dataset.k];
+      b.disabled = true;
+      try { const r = await k.tun(blatt); if (r !== false) blattSchliessen(); }
+      catch (e) { console.error(e); toast(e.message || 'Fehler'); }
+      finally { b.disabled = false; }
+    }
+  });
+  if (beimOeffnen) beimOeffnen(blatt);
+  const erstes = $('.inhalt input:not([type=hidden]):not([type=checkbox]),.inhalt textarea', blatt);
+  if (erstes && window.innerWidth > 700) setTimeout(() => erstes.focus(), 50);
+  return blatt;
+}
+function blattSchliessen(still) {
+  if (!UI.blatt) return;
+  const b = UI.blatt; UI.blatt = null;
+  b.eb.remove();
+  if (b.beimSchliessen && !still) b.beimSchliessen();
+  if (UI.nachSchliessen) { UI.nachSchliessen = false; zeichnen(); }
+}
+/** Allgemeines Bearbeiten-Blatt */
+function bearbeiten({ titel, felder, werte = {}, speichern, loeschen, vorschau, nachOeffnen, zusatz = '', abbruch, breit }) {
+  const knoepfe = [];
+  let erledigt = false;
+  if (loeschen) knoepfe.push({ text: 'Löschen', klasse: 'gefahr', tun: async () => { if (await bestaetigenSofort('Wirklich löschen? Der Eintrag landet im Papierkorb.')) { erledigt = true; await loeschen(); toast('Gelöscht'); zeichnen(); } else return false; } });
+  knoepfe.push({ text: 'Speichern', klasse: 'haupt', tun: async bl => { if (!pflichtPruefen(bl)) return false; const r = await speichern(formWerte(bl), bl); if (r === false) return false; erledigt = true; zeichnen(); } });
+  const bl = blattOeffnen({ titel, html: formular(felder, werte) + zusatz, knoepfe, breit, beimSchliessen: () => { if (!erledigt && abbruch) abbruch(); } });
+  if (vorschau) { const f = () => vorschau(formWerte(bl), bl); bl.addEventListener('input', f); bl.addEventListener('change', f); f(); }
+  if (nachOeffnen) nachOeffnen(bl);
+  return bl;
+}
+function bestaetigenSofort(text) { return Promise.resolve(window.confirm(text)); }
+
+/* ---------- Bildansicht ---------- */
+async function fotoZeigen(id) {
+  const z = D.fotos.get(id); if (!z) return;
+  const el = document.createElement('div');
+  el.className = 'bildansicht';
+  el.innerHTML = `<img src="${esc(z.thumb)}" alt=""><footer><span>${esc(z.beschreibung || datumDE((z.aufgenommen || '').slice(0, 10)))}${z.phase ? ' · ' + esc(z.phase) : ''}</span>
+    <button class="knopf klein" data-b="text">Beschreibung</button><button class="knopf klein" data-b="zu">Schließen</button></footer>`;
+  document.body.appendChild(el);
+  el.addEventListener('click', async ev => {
+    const b = ev.target.closest('[data-b]');
+    if (!b) return;
+    if (b.dataset.b === 'zu') el.remove();
+    if (b.dataset.b === 'text') {
+      const t = prompt('Beschreibung des Fotos', z.beschreibung || '');
+      if (t !== null) { z.beschreibung = t; await speichere('fotos', z); $('span', el).textContent = t; }
+    }
+  });
+  const voll = await fotoVoll(id);
+  if (voll && el.isConnected) $('img', el).src = voll;
+}
+function fotoRaster(fotos, loeschbar) {
+  if (!fotos.length) return '';
+  return '<div class="fotoraster">' + fotos.map(f => `<div class="foto" data-a="fotoZeigen" data-id="${f.id}">
+    <img src="${esc(f.thumb)}" alt="" loading="lazy">${loeschbar ? `<button class="x" data-a="fotoWeg" data-id="${f.id}" aria-label="Foto entfernen">✕</button>` : ''}
+    ${f.phase ? `<span class="hoch">${esc(f.phase)}</span>` : (!f.driveId && modus() === 'server' ? '<span class="hoch">wartet</span>' : '')}</div>`).join('') + '</div>';
+}
+function fotoWaehlen(kamera) {
+  return new Promise(res => {
+    const i = document.createElement('input');
+    i.type = 'file'; i.accept = 'image/*';
+    if (kamera) i.capture = 'environment'; else i.multiple = true;
+    i.onchange = () => res([...i.files]);
+    i.click();
+  });
+}
+
+/* ---------- Rahmen ---------- */
+function rahmen(titel, inhalt, { zurueck, fab } = {}) {
+  const r = route();
+  const navAktiv = n => (r.seite === n || (n === 'projekte' && ['projekt', 'dok'].includes(r.seite)) || (n === 'mehr' && ['kunden', 'kunde', 'artikel', 'lohnarten', 'auswertung', 'papierkorb', 'einstellungen'].includes(r.seite))) ? ' aktiv' : '';
+  return `<header class="kopf">${zurueck ? `<button class="zurueck" data-a="zurueck" aria-label="Zurück">‹</button>` : ''}${E('logo') ? `<img class="kopflogo" src="${esc(E('logo'))}" alt="">` : ''}<h1>${esc(titel)}</h1><span id="syncpunkt" class="syncpunkt" data-a="syncJetzt"></span></header>
+  <div id="uhrplatz"></div>
+  <main>${inhalt}</main>
+  ${fab ? `<button class="fab" data-a="${fab}" aria-label="Neu">+</button>` : ''}
+  <nav class="unten">
+    <a href="#/start" class="${navAktiv('start')}">${ICON.start}<span>Start</span></a>
+    <a href="#/projekte" class="${navAktiv('projekte')}">${ICON.projekte}<span>Projekte</span></a>
+    <a href="#" class="plus" data-a="erfassen"><span class="rund">${ICON.plus}</span><span class="nur-breit">Erfassen</span></a>
+    <a href="#/kalender" class="${navAktiv('kalender')}">${ICON.kalender}<span>Kalender</span></a>
+    <a href="#/mehr" class="${navAktiv('mehr')}">${ICON.mehr}<span>Mehr</span></a>
+  </nav>`;
+}
+
+function route() {
+  const teile = (location.hash.replace(/^#\/?/, '') || 'start').split('/').map(decodeURIComponent);
+  return { seite: teile[0] || 'start', a: teile[1], b: teile[2] };
+}
+const geheZu = h => { if (location.hash === h) zeichnen(); else location.hash = h; };
+
+/* ---------- Zeichnen ---------- */
+function zeichnen() {
+  if (!appBereit()) return;
+  const r = route();
+  const seite = SEITEN[r.seite] || SEITEN.start;
+  let html;
+  try { html = seite(r); }
+  catch (e) { console.error(e); html = rahmen('Fehler', `<div class="karte"><b>Diese Ansicht ließ sich nicht anzeigen.</b><p class="leise">${esc(e.message)}</p><a class="knopf" href="#/start">Zur Startseite</a></div>`); }
+  const app = $('#app');
+  const scroll = r.seite === UI.letzteSeite && r.a === UI.letztesA ? window.scrollY : 0;
+  app.innerHTML = html;
+  UI.letzteSeite = r.seite; UI.letztesA = r.a;
+  window.scrollTo(0, scroll);
+  syncAnzeigen();
+  uhrAnzeigen();
+  if (UI.nachZeichnen) { const f = UI.nachZeichnen; UI.nachZeichnen = null; f(); }
+}
+function neuZeichnenWennRuhig() {
+  if (!UI.entsperrt || !$('#syncpunkt')) return;
+  const fokus = document.activeElement;
+  const tippt = fokus && /INPUT|TEXTAREA|SELECT/.test(fokus.tagName);
+  if (UI.blatt) { UI.nachSchliessen = true; return; }
+  if (tippt) return;
+  zeichnen();
+}
+
+/* ---------- Aktionen (Ereignis-Weiterleitung) ---------- */
+const AKTION = {};
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-a]');
+  if (!el) return;
+  const f = AKTION[el.dataset.a];
+  if (!f) return;
+  ev.preventDefault();
+  ev.stopPropagation();
+  Promise.resolve(f(el, ev)).catch(e => { console.error(e); toast(e.message || 'Fehler'); });
+});
+document.addEventListener('change', ev => {
+  const el = ev.target.closest('[data-c]');
+  if (!el) return;
+  const f = AKTION[el.dataset.c];
+  if (f) Promise.resolve(f(el, ev)).catch(e => { console.error(e); toast(e.message || 'Fehler'); });
+});
+AKTION.zurueck = () => { if (history.length > 1) history.back(); else geheZu('#/start'); };
+AKTION.syncJetzt = () => {
+  if (modus() !== 'server') { toast('Die App läuft nur auf diesem Gerät – Server in den Einstellungen verbinden.'); return; }
+  if (SY.status === 'fehler' && SY.fehler) toast(SY.fehler, 4000);
+  sync();
+};
+AKTION.fotoZeigen = el => fotoZeigen(el.dataset.id);
+AKTION.fotoWeg = async el => {
+  if (!confirm('Foto entfernen?')) return;
+  await loesche('fotos', el.dataset.id);
+  el.closest('.foto')?.remove();
+};
+
+/* ---------- Start, Anmeldung, PIN ---------- */
+function appBereit() {
+  const m = modus();
+  if (!m) { einrichtungZeigen(); return false; }
+  if (m === 'server' && !ls.get('bs_token')) { anmeldungZeigen(); return false; }
+  if (ls.get('bs_pin') && !UI.entsperrt) { pinZeigen('pruefen'); return false; }
+  if (m === 'server' && !ls.get('bs_pin')) { pinZeigen('neu'); return false; }
+  return true;
+}
+
+function vollbild(html) { $('#app').innerHTML = `<div class="vollbild"><div class="anmeldung">${html}</div></div>`; }
+
+function einrichtungZeigen() {
+  vollbild(`<div class="logo">${ICON.logo}</div><h1>Baustellen</h1>
+    <p>Trage die Adresse deines Backends ein (die Web-App-URL aus Google Apps Script). Ohne Server kannst du die App auf diesem Gerät ausprobieren.</p>
+    ${formular([{ n: 'url', l: 'Web-App-URL', t: 'url', p: 'https://script.google.com/macros/s/…/exec', d: ls.get('bs_url') || '' }])}
+    <div id="einrFehler" class="fehlertext"></div>
+    <div class="knopfreihe" style="margin-top:16px"><button class="knopf haupt breit" data-a="einrVerbinden">Verbinden</button>
+    <button class="knopf breit" data-a="einrLokal">Ohne Server ausprobieren</button></div>`);
+}
+AKTION.einrLokal = async () => {
+  ls.set('bs_modus', 'lokal');
+  await grunddatenAnlegen();
+  UI.entsperrt = true;
+  geheZu('#/start');
+  zeichnen();
+};
+AKTION.einrVerbinden = async el => {
+  const url = $('#f_url').value.trim();
+  const f = $('#einrFehler');
+  if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) { f.textContent = 'Die Adresse muss mit https://script.google.com/ beginnen.'; return; }
+  el.disabled = true; f.textContent = '';
+  ls.set('bs_url', url);
+  try {
+    const j = await api('status');
+    if (!j.eingerichtet) throw new Error('Das Backend ist noch nicht eingerichtet – im Skript-Editor einrichten() ausführen.');
+    const lokaleDaten = TABELLEN.some(t => alle(t).length && t !== 'lohnarten');
+    if (modus() === 'lokal' && lokaleDaten) {
+      // Bisher lokal erfasste Daten werden mit hochgeladen
+      TABELLEN.forEach(t => D[t].forEach((z, id) => { META.offen[t + '|' + id] = true; }));
+      META.fotoOffen = alle('fotos').filter(x => !x.driveId).map(x => x.id);
+      await metaSichern();
+    }
+    META.seit = ''; await metaSichern();
+    UI.ersteAnmeldung = j.benutzer === 0;
+    ls.set('bs_modus', 'server');
+    ls.set('bs_token', null);
+    anmeldungZeigen();
+  } catch (e) { f.textContent = e.message; ls.set('bs_url', modus() === 'server' ? ls.get('bs_url') : null); }
+  finally { el.disabled = false; }
+};
+
+function anmeldungZeigen(mitCode) {
+  const code = mitCode || UI.ersteAnmeldung;
+  vollbild(`<div class="logo">${ICON.logo}</div><h1>${code ? (UI.ersteAnmeldung ? 'Konto anlegen' : 'Konto mit Code') : 'Anmelden'}</h1>
+    <p>${code ? 'Den Einrichtungscode zeigt das Skript nach <b>einrichten()</b> bzw. <b>neuerEinrichtungscode()</b> im Ausführungsprotokoll an. Mit dem Code kannst du auch ein vergessenes Passwort neu setzen.' : 'Mit deiner Mailadresse und deinem Passwort.'}</p>
+    ${formular([
+      ...(code ? [{ n: 'name', l: 'Dein Name' }] : []),
+      { n: 'mail', l: 'Mailadresse', t: 'email', a: 'autocomplete="username"', d: ls.get('bs_mail') || '' },
+      { n: 'passwort', l: code ? 'Neues Passwort (mind. 8 Zeichen)' : 'Passwort', t: 'password', a: code ? 'autocomplete="new-password"' : 'autocomplete="current-password"' },
+      ...(code ? [{ n: 'passwort2', l: 'Passwort wiederholen', t: 'password', a: 'autocomplete="new-password"' }, { n: 'code', l: 'Einrichtungscode', a: 'autocapitalize="characters"' }] : [])
+    ])}
+    <div id="anmFehler" class="fehlertext"></div>
+    <div class="knopfreihe" style="margin-top:16px"><button class="knopf haupt breit" data-a="${code ? 'anmCode' : 'anmelden'}">${code ? 'Konto speichern & anmelden' : 'Anmelden'}</button></div>
+    <p class="klein" style="margin-top:18px">${code ? '<a href="#" data-a="anmOhneCode">Zurück zur Anmeldung</a>' : '<a href="#" data-a="anmMitCode">Konto mit Einrichtungscode anlegen / Passwort vergessen</a>'}
+    · <a href="#" data-a="anmServer">Andere Backend-Adresse</a></p>`);
+  setTimeout(() => $('#f_mail')?.focus(), 50);
+  $('#app').onkeydown = ev => { if (ev.key === 'Enter') $('#app .knopf.haupt')?.click(); };
+}
+AKTION.anmMitCode = () => anmeldungZeigen(true);
+AKTION.anmOhneCode = () => { UI.ersteAnmeldung = false; anmeldungZeigen(false); };
+AKTION.anmServer = () => { ls.set('bs_modus', null); einrichtungZeigen(); };
+const geraetName = () => (navigator.userAgentData?.platform || navigator.platform || 'Gerät') + (window.innerWidth < 700 ? ' (Handy)' : '');
+async function anmeldeErgebnis(j) {
+  ls.set('bs_token', j.token);
+  ls.set('bs_mail', j.benutzer.mail);
+  ls.setJ('bs_benutzer', j.benutzer);
+  $('#app').onkeydown = null;
+  UI.ersteAnmeldung = false;
+  toast('Angemeldet – Daten werden abgeglichen …');
+  await sync();
+  await grunddatenAnlegen();
+  zeichnen();
+}
+AKTION.anmelden = async el => {
+  const w = formWerte($('#app'));
+  el.disabled = true; $('#anmFehler').textContent = '';
+  try { await anmeldeErgebnis(await api('anmelden', { mail: w.mail, passwort: w.passwort, geraet: geraetName() })); }
+  catch (e) { $('#anmFehler').textContent = e.message; }
+  finally { el.disabled = false; }
+};
+AKTION.anmCode = async el => {
+  const w = formWerte($('#app'));
+  const f = $('#anmFehler');
+  if (w.passwort.length < 8) { f.textContent = 'Das Passwort braucht mindestens 8 Zeichen.'; return; }
+  if (w.passwort !== w.passwort2) { f.textContent = 'Die beiden Passwörter stimmen nicht überein.'; return; }
+  el.disabled = true; f.textContent = '';
+  try { await anmeldeErgebnis(await api('kontoMitCode', { name: w.name, mail: w.mail, passwort: w.passwort, code: w.code, geraet: geraetName() })); }
+  catch (e) { f.textContent = e.message; }
+  finally { el.disabled = false; }
+};
+function abgemeldet() {
+  ls.set('bs_token', null);
+  toast('Bitte neu anmelden.');
+  anmeldungZeigen();
+}
+
+/* PIN */
+let pinEingabe = '', pinErst = '';
+function pinZeigen(art) {
+  UI.pinArt = art; pinEingabe = '';
+  const titel = { pruefen: 'PIN eingeben', neu: 'PIN festlegen', wiederholen: 'PIN wiederholen' }[art];
+  const text = { pruefen: 'Zum Entsperren der App.', neu: 'Vier Ziffern, mit denen du die App künftig öffnest.', wiederholen: 'Zur Sicherheit noch einmal.' }[art];
+  vollbild(`<div class="logo">${ICON.logo}</div><h1>${titel}</h1><p>${text}</p>
+    <div class="pinpunkte">${[0, 1, 2, 3].map(() => '<i></i>').join('')}</div>
+    <div class="pinfeld">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pin" data-z="${n}">${n}</button>`).join('')}
+    <button class="leer" data-a="pinVergessen">${art === 'pruefen' ? 'Vergessen?' : ''}</button><button data-a="pin" data-z="0">0</button><button class="leer" data-a="pin" data-z="weg">⌫</button></div>
+    <div id="pinFehler" class="fehlertext" style="text-align:center"></div>`);
+  $('#app').onkeydown = ev => { if (/^\d$/.test(ev.key)) pinTaste(ev.key); else if (ev.key === 'Backspace') pinTaste('weg'); };
+  $('#app').tabIndex = -1; $('#app').focus();
+}
+AKTION.pin = el => pinTaste(el.dataset.z);
+async function pinTaste(z) {
+  if (z === 'weg') pinEingabe = pinEingabe.slice(0, -1);
+  else if (pinEingabe.length < 4) pinEingabe += z;
+  $$('.pinpunkte i').forEach((i, n) => i.classList.toggle('voll', n < pinEingabe.length));
+  if (pinEingabe.length < 4) return;
+  const pin = pinEingabe; pinEingabe = '';
+  if (UI.pinArt === 'pruefen') {
+    if (await sha256('bs-pin|' + pin) === ls.get('bs_pin')) {
+      UI.entsperrt = true; ls.set('bs_pinfehl', 0); $('#app').onkeydown = null; zeichnen(); if (modus() === 'server') sync();
+    } else {
+      const fehl = +ls.get('bs_pinfehl', 0) + 1; ls.set('bs_pinfehl', fehl);
+      if (fehl >= 5) { ls.set('bs_pin', null); ls.set('bs_pinfehl', 0); if (modus() === 'server') { ls.set('bs_token', null); anmeldungZeigen(); toast('5 falsche PINs – bitte neu anmelden.'); return; } }
+      setTimeout(() => { $$('.pinpunkte i').forEach(i => i.classList.remove('voll')); $('#pinFehler').textContent = 'Falsche PIN (' + fehl + ' von 5 Versuchen).'; }, 150);
+    }
+  } else if (UI.pinArt === 'neu') { pinErst = pin; pinZeigen('wiederholen'); }
+  else if (UI.pinArt === 'wiederholen') {
+    if (pin === pinErst) { ls.set('bs_pin', await sha256('bs-pin|' + pin)); UI.entsperrt = true; $('#app').onkeydown = null; toast('PIN gespeichert'); zeichnen(); }
+    else { pinZeigen('neu'); $('#pinFehler').textContent = 'Die PINs stimmten nicht überein – bitte neu festlegen.'; }
+  }
+}
+AKTION.pinVergessen = () => {
+  if (UI.pinArt !== 'pruefen') return;
+  if (!confirm('PIN vergessen? Du wirst abgemeldet und meldest dich mit Mail und Passwort neu an. Deine Daten bleiben erhalten.')) return;
+  ls.set('bs_pin', null);
+  if (modus() === 'server') { ls.set('bs_token', null); anmeldungZeigen(); } else { UI.entsperrt = true; zeichnen(); }
+};
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) UI.versteckt = Date.now();
+  else {
+    if (ls.get('bs_pin') && UI.entsperrt && UI.versteckt && Date.now() - UI.versteckt > 5 * 60000) { UI.entsperrt = false; blattSchliessen(true); zeichnen(); }
+    if (modus() === 'server' && UI.entsperrt) sync();
+  }
+});
+
+/* =========================================================================
+   Seiten und Bearbeiten-Blätter
+   ========================================================================= */
+
+const SEITEN = {};
+
+/* ===================== Stoppuhr ===================== */
+const uhr = () => ls.getJ('bs_uhr');
+function uhrDauer(u) { const ende = u.pauseSeit || Date.now(); return Math.max(0, ende - u.start - (u.pauseMs || 0)); }
+function dauerText(ms) { const s = Math.floor(ms / 1000); return Math.floor(s / 3600) + ':' + zz(Math.floor(s / 60) % 60) + ':' + zz(s % 60); }
+function uhrAnzeigen() {
+  const platz = $('#uhrplatz'); if (!platz) return;
+  const u = uhr();
+  if (!u) { platz.innerHTML = ''; return; }
+  platz.innerHTML = `<div class="uhrchip${u.pauseSeit ? ' pause' : ''}" data-a="uhrMenue"><span>${u.pauseSeit ? '⏸' : '⏱'}</span><span class="uhrzeit">${dauerText(uhrDauer(u))}</span><span class="uhrprojekt">${esc(projektName(u.pid))}${u.pauseSeit ? ' · Pause' : ''}</span><span>›</span></div>`;
+}
+setInterval(() => { const u = uhr(); const el = $('.uhrchip .uhrzeit'); if (u && el) el.textContent = dauerText(uhrDauer(u)); }, 1000);
+
+function uhrStarten(pid) {
+  if (!pid) { toast('Bitte zuerst ein Projekt wählen.'); return; }
+  if (uhr()) { toast('Es läuft bereits eine Stoppuhr.'); return; }
+  ls.setJ('bs_uhr', { pid, start: Date.now(), pauseMs: 0, pauseSeit: null, taetigkeit: '' });
+  ls.set('bs_letztesProjekt', pid);
+  toast('Stoppuhr läuft');
+  uhrAnzeigen();
+}
+AKTION.uhrStart = el => uhrStarten(el.dataset.pid || ls.get('bs_letztesProjekt'));
+AKTION.uhrMenue = () => {
+  const u = uhr(); if (!u) return;
+  blattOeffnen({
+    titel: 'Stoppuhr',
+    html: `<div class="kennzahl" style="margin-bottom:14px"><span>${esc(projektName(u.pid))}</span><b>${dauerText(uhrDauer(u))}</b><span>Start ${zeitHM(new Date(u.start))} Uhr${u.pauseMs ? ' · Pausen ' + Math.round(u.pauseMs / 60000) + ' Min.' : ''}</span></div>
+      ${formular([{ n: 'taetigkeit', l: 'Tätigkeit', d: u.taetigkeit, p: 'z. B. Unterkonstruktion Terrasse' }])}`,
+    knoepfe: [
+      { text: 'Verwerfen', klasse: 'gefahr', tun: () => { if (!confirm('Stoppuhr verwerfen? Die Zeit wird nicht gespeichert.')) return false; ls.set('bs_uhr', null); uhrAnzeigen(); } },
+      { text: u.pauseSeit ? 'Weiter' : 'Pause', tun: bl => {
+        const x = uhr(); x.taetigkeit = $('#f_taetigkeit', bl).value;
+        if (x.pauseSeit) { x.pauseMs += Date.now() - x.pauseSeit; x.pauseSeit = null; } else x.pauseSeit = Date.now();
+        ls.setJ('bs_uhr', x); uhrAnzeigen();
+      } },
+      { text: 'Stopp', klasse: 'haupt', tun: bl => {
+        const x = uhr(); x.taetigkeit = $('#f_taetigkeit', bl).value;
+        if (x.pauseSeit) { x.pauseMs += Date.now() - x.pauseSeit; x.pauseSeit = null; }
+        ls.setJ('bs_uhr', x);
+        const s = new Date(x.start), e = new Date();
+        const werte = { projektId: x.pid, datum: datumISO(s), von: zeitHM(s), bis: zeitHM(e), pause: Math.round(x.pauseMs / 60000), taetigkeit: x.taetigkeit };
+        setTimeout(() => zeitBearbeiten(null, { werte, nachSpeichern: () => { ls.set('bs_uhr', null); uhrAnzeigen(); } }), 0);
+      } }
+    ]
+  });
+};
+
+/* ===================== Start ===================== */
+SEITEN.start = () => {
+  const h = heute(), wb = wochenbeginn(h), we = tageDazu(wb, 6), mon = h.slice(0, 7);
+  const zeiten = alle('zeiten');
+  const stdWoche = zeiten.filter(z => z.datum >= wb && z.datum <= we).reduce((s, z) => s + (+z.stunden || 0), 0);
+  const stdMonat = zeiten.filter(z => (z.datum || '').startsWith(mon)).reduce((s, z) => s + (+z.stunden || 0), 0);
+  const projekte = alle('projekte');
+  let offenSumme = 0;
+  projekte.forEach(p => { const o = projektZahlen(p.id).offen; if (o > 0.005) offenSumme += o; });
+  const maengel = alle('doku').filter(d => d.art === 'mangel' && d.status !== 'behoben');
+  const termine = alle('aufgaben').filter(a => !a.erledigt && a.datum && a.datum <= tageDazu(h, 7))
+    .sort((a, b) => (a.datum + (a.zeit || '')).localeCompare(b.datum + (b.zeit || ''))).slice(0, 8);
+  const aktiv = projekte.filter(p => AKTIV.has(p.status)).sort((a, b) => (b.geaendert || '').localeCompare(a.geaendert || ''));
+  const u = uhr();
+  const name = (ls.getJ('bs_benutzer') || {}).name || E('inhaber');
+  let html = `<p class="leise" style="margin:0 2px 12px">${esc(wochentag(h))}, ${datumDE(h)}${name ? ' · Hallo ' + esc(name.split(' ')[0]) : ''}</p>`;
+  if (!u) {
+    const letzte = hol('projekte', ls.get('bs_letztesProjekt'));
+    html += `<div class="karte" style="display:flex;align-items:center;gap:12px"><div style="flex:1"><b>Stoppuhr</b><div class="leise klein">${letzte ? 'Zuletzt: ' + esc(letzte.name) : 'Arbeitszeit direkt auf der Baustelle erfassen'}</div></div>
+      ${letzte ? `<button class="knopf haupt" data-a="uhrStart" data-pid="${letzte.id}">Start</button>` : ''}<button class="knopf" data-a="erfassen">${letzte ? 'Anderes' : 'Projekt wählen'}</button></div>`;
+  }
+  html += `<div class="raster" style="margin-bottom:12px">
+    <div class="kennzahl"><span>Stunden diese Woche</span><b>${zahl(stdWoche)}</b></div>
+    <div class="kennzahl"><span>Stunden ${MONATE[+mon.slice(5) - 1]}</span><b>${zahl(stdMonat)}</b></div>
+    <div class="kennzahl${offenSumme > 0 ? ' warn' : ''}" data-a="geheAuswertung" style="cursor:pointer"><span>Offene Beträge</span><b>${eur(offenSumme)}</b></div>
+    <div class="kennzahl${maengel.length ? ' schlecht' : ''}"><span>Offene Mängel</span><b>${maengel.length}</b></div></div>`;
+  html += `<div class="abschnitt"><h2>Nächste 7 Tage</h2><a class="klein" href="#/kalender">Kalender</a></div>`;
+  html += termine.length ? `<div class="liste">${termine.map(aufgabeZeile).join('')}</div>` : `<div class="liste">${leer('Nichts fällig', 'Keine offenen Termine oder Aufgaben in den nächsten 7 Tagen.')}</div>`;
+  html += `<div class="abschnitt"><h2>Aktive Projekte</h2><a class="klein" href="#/projekte">Alle</a></div>`;
+  html += aktiv.length ? `<div class="liste">${aktiv.map(projektZeile).join('')}</div>`
+    : `<div class="liste">${leer('Kein aktives Projekt', 'Projekte mit Status „Beauftragt“ oder „In Arbeit“ erscheinen hier.')}<div style="padding:0 14px 14px;text-align:center"><button class="knopf haupt" data-a="projektNeu">Projekt anlegen</button></div></div>`;
+  if (maengel.length) {
+    html += `<div class="abschnitt"><h2>Offene Mängel</h2></div><div class="liste">${maengel.slice(0, 6).map(d => `<div class="zeile" data-a="dokuOeffnen" data-id="${d.id}"><div class="mitte"><div class="titel">${esc(d.titel || 'Mangel')}</div><div class="unter">${esc(projektName(d.projektId))} · ${datumDE(d.datum)}</div></div>${badge('offen', 'offen')}</div>`).join('')}</div>`;
+  }
+  return rahmen('Baustellen', html, {});
+};
+AKTION.geheAuswertung = () => geheZu('#/auswertung');
+
+/* ===================== Projekte ===================== */
+function projektZeile(p) {
+  const k = kundeName(p.kundeId);
+  return `<div class="zeile" data-a="geh" data-h="#/projekt/${p.id}"><div class="mitte"><div class="titel">${esc(p.name)}</div><div class="unter">${esc([p.nr, k, p.ort].filter(Boolean).join(' · '))}</div></div>${badge(p.status, statusText(p.status))}</div>`;
+}
+AKTION.geh = el => geheZu(el.dataset.h);
+
+SEITEN.projekte = r => {
+  const filter = r.a || 'laufend';
+  const suche = (UI.projektSuche || '').toLowerCase();
+  let liste = alle('projekte');
+  const zaehl = { laufend: 0, alle: liste.length };
+  STATUS.forEach(([s]) => { zaehl[s] = 0; });
+  liste.forEach(p => { zaehl[p.status] = (zaehl[p.status] || 0) + 1; if (p.status !== 'bezahlt') zaehl.laufend++; });
+  if (filter === 'laufend') liste = liste.filter(p => p.status !== 'bezahlt');
+  else if (filter !== 'alle') liste = liste.filter(p => p.status === filter);
+  if (suche) liste = liste.filter(p => [p.name, p.nr, kundeName(p.kundeId), p.ort, p.strasse].join(' ').toLowerCase().includes(suche));
+  const reihen = { anfrage: 0, angebot: 1, beauftragt: 2, arbeit: 2, fertig: 3, abgerechnet: 4, bezahlt: 5 };
+  liste.sort((a, b) => (reihen[a.status] ?? 9) - (reihen[b.status] ?? 9) || (b.nr || '').localeCompare(a.nr || ''));
+  const chips = [['laufend', 'Laufend'], ...STATUS, ['alle', 'Alle']].filter(([s]) => s === 'laufend' || s === 'alle' || zaehl[s])
+    .map(([s, t]) => `<a class="chip${filter === s ? ' aktiv' : ''}" href="#/projekte/${s}">${esc(t)} ${zaehl[s] ? '<span class="leise">' + zaehl[s] + '</span>' : ''}</a>`).join('');
+  const html = `<input class="suche" type="search" placeholder="Suchen: Name, Kunde, Ort …" value="${esc(UI.projektSuche || '')}" data-c="projektSuche" oninput="UI.projektSuche=this.value;clearTimeout(UI.st);UI.st=setTimeout(()=>{zeichnen();const s=document.querySelector('.suche');if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length)}},250)">
+    <div class="chips">${chips}</div>
+    ${liste.length ? `<div class="liste">${liste.map(projektZeile).join('')}</div>` : `<div class="liste">${leer('Keine Projekte', suche ? 'Nichts gefunden.' : 'Lege mit + dein erstes Projekt an.')}</div>`}`;
+  return rahmen('Projekte', html, { fab: 'projektNeu' });
+};
+AKTION.projektSuche = () => { };
+AKTION.projektNeu = () => projektBearbeiten(null);
+
+function projektBearbeiten(p) {
+  const neu = !p;
+  const w = p ? { ...p } : { status: 'anfrage', art: 'festpreis', aufschlag: En('aufschlag'), verschnitt: En('verschnitt'), kmSatz: En('kmSatz'), beginn: '' };
+  const kunden = alle('kunden').sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  bearbeiten({
+    titel: neu ? 'Neues Projekt' : 'Projekt bearbeiten',
+    werte: w,
+    felder: [
+      { n: 'name', l: 'Projektname', req: true, p: 'z. B. Terrasse Lärche Familie Meier' },
+      { n: 'kundeId', l: 'Kunde', t: 'select', o: optionen([['', '– kein Kunde –'], ...kunden.map(k => [k.id, k.name])], w.kundeId), halb: true },
+      { n: 'neuerKunde', l: 'oder neuer Kunde', p: 'Name des neuen Kunden', halb: true },
+      { n: 'strasse', l: 'Baustelle Straße', halb: true },
+      { n: 'ort', l: 'PLZ und Ort', halb: true },
+      { n: 'status', l: 'Status', t: 'select', o: optionen(STATUS, w.status), halb: true },
+      { n: 'art', l: 'Abrechnung', t: 'select', o: optionen([['festpreis', 'Festpreis (nach Angebot)'], ['aufwand', 'Nach Aufwand']], w.art), halb: true },
+      { n: 'beginn', l: 'Beginn', t: 'datum', halb: true },
+      { n: 'ende', l: 'Ende', t: 'datum', halb: true },
+      { n: 'aufschlag', l: 'Materialaufschlag %', t: 'zahl', halb: true },
+      { n: 'verschnitt', l: 'Verschnitt %', t: 'zahl', halb: true },
+      { n: 'kmSatz', l: 'km-Satz Kunde €', t: 'zahl', halb: true },
+      { n: 'km', l: 'Entfernung einfach (km)', t: 'zahl', halb: true },
+      { n: 'beschreibung', l: 'Beschreibung', t: 'textarea' },
+      { n: 'notiz', l: 'Interne Notiz', t: 'textarea' }
+    ],
+    speichern: async v => {
+      if (v.neuerKunde) { const k = await speichere('kunden', { name: v.neuerKunde }); v.kundeId = k.id; }
+      delete v.neuerKunde;
+      const z = Object.assign(p || {}, v);
+      if (!z.nr) z.nr = naechsteNr('nrProjekt', 'projekte');
+      await speichere('projekte', z);
+      ls.set('bs_letztesProjekt', z.id);
+      if (neu) { toast('Projekt ' + z.nr + ' angelegt'); geheZu('#/projekt/' + z.id); }
+    },
+    loeschen: neu ? null : async () => { await loesche('projekte', p.id); geheZu('#/projekte'); }
+  });
+}
+
+/* ---------- Projekt-Ansicht ---------- */
+const PROJEKT_REITER = [['uebersicht', 'Übersicht'], ['kalk', 'Kalkulation'], ['zeiten', 'Zeiten'], ['kosten', 'Kosten'], ['doku', 'Doku'], ['aufgaben', 'Aufgaben'], ['dokumente', 'Dokumente']];
+SEITEN.projekt = r => {
+  const p = hol('projekte', r.a);
+  if (!p) return rahmen('Projekt', `<div class="liste">${leer('Projekt nicht gefunden', 'Vielleicht gelöscht – siehe Papierkorb.')}</div>`, { zurueck: true });
+  const reiter = r.b || 'uebersicht';
+  ls.set('bs_letztesProjekt', p.id);
+  const kopf = `<div class="reiter">${PROJEKT_REITER.map(([k, t]) => `<a href="#/projekt/${p.id}/${k}" class="${reiter === k ? 'aktiv' : ''}">${t}</a>`).join('')}</div>`;
+  const inhalt = (PROJEKT_TAB[reiter] || PROJEKT_TAB.uebersicht)(p);
+  return rahmen((p.nr ? p.nr + ' · ' : '') + p.name, kopf + inhalt, { zurueck: true });
+};
+const PROJEKT_TAB = {};
+
+PROJEKT_TAB.uebersicht = p => {
+  const k = hol('kunden', p.kundeId);
+  const z = projektZahlen(p.id);
+  const adresse = [p.strasse, p.ort].filter(Boolean).join(', ');
+  const maengel = vonProjekt('doku', p.id).filter(d => d.art === 'mangel' && d.status !== 'behoben').length;
+  const zahlungen = vonProjekt('zahlungen', p.id).sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
+  const zeilen = [
+    ['Stunden', z.soll.std, z.ist.std, true],
+    ['Material (EK)', z.soll.mat, z.ist.mat],
+    ['Fremdleistungen (EK)', z.soll.fremd, z.ist.fremd],
+    ['Fahrtkosten (eigene)', z.soll.fahrt, z.ist.fahrt]
+  ];
+  return `<div class="karte">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <select data-c="projStatus" data-id="${p.id}" style="padding:8px 10px;border-radius:10px;border:1px solid var(--rand);background:var(--fl)">${optionen(STATUS, p.status)}</select>
+        <span class="badge">${p.art === 'aufwand' ? 'Nach Aufwand' : 'Festpreis'}</span>
+        <span style="flex:1"></span><button class="knopf klein" data-a="projektBearb" data-id="${p.id}">Bearbeiten</button></div>
+      ${k ? `<div><a href="#/kunde/${k.id}"><b>${esc(k.name)}</b></a>${k.telefon ? ` · <a href="tel:${esc(k.telefon)}">${esc(k.telefon)}</a>` : ''}${k.email ? ` · <a href="mailto:${esc(k.email)}">Mail</a>` : ''}</div>` : '<div class="leise">Kein Kunde zugeordnet</div>'}
+      ${adresse ? `<div style="margin-top:4px">${esc(adresse)} · <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse)}" target="_blank" rel="noopener">Navi</a></div>` : ''}
+      ${p.beginn || p.ende ? `<div class="leise klein" style="margin-top:4px">${datumDE(p.beginn) || '…'} bis ${datumDE(p.ende) || '…'}</div>` : ''}
+      ${p.beschreibung ? `<p style="white-space:pre-wrap;margin:10px 0 0">${esc(p.beschreibung)}</p>` : ''}
+      ${p.notiz ? `<p class="leise klein" style="white-space:pre-wrap;margin:8px 0 0">Notiz: ${esc(p.notiz)}</p>` : ''}
+      <div class="knopfreihe" style="margin-top:12px"><button class="knopf klein" data-a="uhrStart" data-pid="${p.id}">⏱ Stoppuhr</button><button class="knopf klein" data-a="schnell" data-was="zeit" data-pid="${p.id}">Zeit nachtragen</button><button class="knopf klein" data-a="schnell" data-was="bericht" data-pid="${p.id}">Tagesbericht</button></div>
+    </div>
+    <div class="raster" style="margin-bottom:12px">
+      <div class="kennzahl"><span>Kalkuliert (netto)</span><b>${eur(z.soll.vk)}</b></div>
+      <div class="kennzahl"><span>Erlös ${esc(z.erloesArt)}</span><b>${eur(z.erloes)}</b></div>
+      <div class="kennzahl"><span>Kosten (Material, Fremd, Fahrt)</span><b>${eur(z.kosten)}</b></div>
+      <div class="kennzahl ${z.gewinn >= 0 ? 'gut' : 'schlecht'}"><span>Gewinn</span><b>${eur(z.gewinn)}</b></div>
+      <div class="kennzahl"><span>Effektiver Stundenlohn</span><b${z.stundenlohn === null ? ' class="text"' : ''}>${z.stundenlohn === null ? '–' : eur(z.stundenlohn)}</b></div>
+      <div class="kennzahl${z.offen > 0.005 ? ' warn' : ''}"><span>Offen</span><b${z.abgerechnetBrutto ? '' : ' class="text"'}>${abr(z)}</b></div>
+    </div>
+    <div class="karte"><h3>Soll / Ist</h3><div class="tabellenrahmen"><table class="tabelle"><tr><th></th><th class="z">Soll</th><th class="z">Ist</th><th class="z">Abw.</th></tr>
+      ${zeilen.map(([t, s, i, st]) => { const a = abweichung(s, i); return `<tr><td>${t}</td><td class="z">${st ? zahl(s) : eur(s)}</td><td class="z">${st ? zahl(i) : eur(i)}</td><td class="z ${a.klasse}">${a.text}</td></tr>`; }).join('')}
+    </table></div>${z.ist.offenStd ? `<p class="leise klein" style="margin:8px 0 0">${zahl(z.ist.offenStd)} Std. sind erfasst und noch nicht abgerechnet.</p>` : ''}${maengel ? `<p class="klein ampel-schlecht" style="margin:6px 0 0">${maengel} offene${maengel === 1 ? 'r' : ''} Mangel/Mängel</p>` : ''}</div>
+    <div class="abschnitt"><h2>Zahlungen</h2><button class="knopf klein" data-a="zahlungNeu" data-pid="${p.id}">+ Zahlung</button></div>
+    <div class="liste">${zahlungen.length ? zahlungen.map(x => `<div class="zeile" data-a="zahlungBearb" data-id="${x.id}"><div class="mitte"><div class="titel">${esc(ZAHLUNG_ARTEN[x.art] || 'Zahlung')}</div><div class="unter">${datumDE(x.datum)}${x.notiz ? ' · ' + esc(x.notiz) : ''}</div></div><div class="wert">${eur(x.betrag)}</div></div>`).join('')
+      + `<div class="gruppenkopf"><span>Abgerechnet ${eur(z.abgerechnetBrutto)} · bezahlt ${eur(z.bezahlt)}</span><span>${z.offen > 0.005 ? 'offen ' + eur(z.offen) : ''}</span></div>` : leer('Noch keine Zahlungen', 'Anzahlungen und Abschläge werden bei der Abrechnung abgezogen.')}</div>`;
+};
+const abr = z => z.abgerechnetBrutto ? eur(z.offen) : (z.bezahlt ? 'Anzahlung ' + eur(z.bezahlt) : 'nicht abgerechnet');
+AKTION.projStatus = async el => { const p = hol('projekte', el.dataset.id); p.status = el.value; await speichere('projekte', p); toast('Status: ' + statusText(p.status)); zeichnen(); };
+AKTION.projektBearb = el => projektBearbeiten(hol('projekte', el.dataset.id));
+
+/* ---------- Kalkulation ---------- */
+function gruppenSortiert(positionen) {
+  const reihenfolge = gewerke();
+  const gruppen = {};
+  positionen.forEach(p => { (gruppen[p.gruppe || ''] = gruppen[p.gruppe || ''] || []).push(p); });
+  const namen = Object.keys(gruppen).sort((a, b) => {
+    const ia = a ? (reihenfolge.indexOf(a) + 1 || 99) : 100, ib = b ? (reihenfolge.indexOf(b) + 1 || 99) : 100;
+    return ia - ib || a.localeCompare(b, 'de');
+  });
+  return namen.map(n => [n, gruppen[n].sort((a, b) => (a.sort || 0) - (b.sort || 0) || (a.erstellt || '').localeCompare(b.erstellt || ''))]);
+}
+function posZeile(pos) {
+  const w = posWerte(pos);
+  const einheit = pos.einheit || (pos.typ === 'lohn' ? 'Std.' : '');
+  const beleg = pos.bereich === 'ist' && fotosZu('position', pos.id).length ? ' 📎' : '';
+  return `<div class="zeile" data-a="posBearb" data-id="${pos.id}"><div class="mitte"><div class="titel">${esc(pos.bezeichnung || TYPEN[pos.typ])}${beleg}</div>
+    <div class="unter">${pos.bereich === 'ist' && pos.datum ? datumDE(pos.datum) + ' · ' : ''}${TYPEN[pos.typ]} · ${zahl(pos.menge, 3)} ${esc(einheit)} × ${eur(w.ep)}${pos.lieferant ? ' · ' + esc(pos.lieferant) : ''}${pos.abgerechnetIn ? ' · abgerechnet' : ''}</div></div>
+    <div class="wert">${eur(w.vk)}${w.ek ? `<small>EK ${eur(w.ek)}</small>` : ''}</div></div>`;
+}
+const neuKnoepfe = (pid, bereich, typen) => `<div class="knopfreihe" style="margin-bottom:12px">${typen.map(([t, l]) => `<button class="knopf klein" data-a="posNeu" data-pid="${pid}" data-bereich="${bereich}" data-typ="${t}">+ ${l}</button>`).join('')}</div>`;
+
+PROJEKT_TAB.kalk = p => {
+  const pos = vonProjekt('positionen', p.id).filter(x => x.bereich !== 'ist');
+  const z = projektZahlen(p.id);
+  let html = neuKnoepfe(p.id, 'soll', [['material', 'Material'], ['lohn', 'Lohn'], ['fremd', 'Fremdleistung'], ['fahrt', 'Fahrt'], ['pauschal', 'Pauschale']]);
+  if (!pos.length) html += `<div class="liste">${leer('Noch keine Kalkulation', 'Füge Material, Lohn, Fremdleistungen, Fahrten oder Pauschalen hinzu. Mengen kannst du per Aufmaß ermitteln.')}</div>`;
+  else {
+    html += '<div class="liste">' + gruppenSortiert(pos).map(([g, liste]) => {
+      const s = liste.reduce((a, x) => a + posWerte(x).vk, 0);
+      return `<div class="gruppenkopf"><span>${esc(g || 'Ohne Gruppe')}</span><span>${eur(s)}</span></div>` + liste.map(posZeile).join('');
+    }).join('') + '</div>';
+    html += `<div class="karte"><table class="tabelle">
+      <tr><td>Material (EK inkl. Verschnitt)</td><td class="z">${eur(z.soll.mat)}</td></tr>
+      <tr><td>Fremdleistungen (EK)</td><td class="z">${eur(z.soll.fremd)}</td></tr>
+      <tr><td>Lohn (${zahl(z.soll.std)} Std.)</td><td class="z">${eur(z.soll.lohn)}</td></tr>
+      <tr><td>Einkauf gesamt</td><td class="z">${eur(z.soll.ek)}</td></tr>
+      <tr class="summe"><td>Verkauf netto</td><td class="z">${eur(z.soll.vk)}</td></tr>
+      <tr><td class="leise">Ertrag (Verkauf − Einkauf)</td><td class="z leise">${eur(z.soll.vk - z.soll.ek)}</td></tr></table>
+      <div class="knopfreihe" style="margin-top:12px"><button class="knopf haupt" data-a="dokNeu" data-art="angebot" data-pid="${p.id}">Angebot erstellen</button></div></div>`;
+  }
+  return html;
+};
+
+PROJEKT_TAB.kosten = p => {
+  const pos = vonProjekt('positionen', p.id).filter(x => x.bereich === 'ist').sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
+  const z = projektZahlen(p.id);
+  let html = neuKnoepfe(p.id, 'ist', [['material', 'Einkauf'], ['fremd', 'Fremdleistung'], ['fahrt', 'Fahrt'], ['pauschal', 'Pauschale']]);
+  html += `<div class="raster" style="margin-bottom:12px"><div class="kennzahl"><span>Material (EK)</span><b>${eur(z.ist.mat)}</b></div><div class="kennzahl"><span>Fremdleistungen</span><b>${eur(z.ist.fremd)}</b></div><div class="kennzahl"><span>Fahrtkosten</span><b>${eur(z.ist.fahrt)}</b></div></div>`;
+  html += pos.length ? `<div class="liste">${pos.map(posZeile).join('')}</div>` : `<div class="liste">${leer('Noch keine Kosten erfasst', 'Einkäufe mit Beleg-Foto, Fremdleistungen und Fahrten landen hier – und bei Abrechnung nach Aufwand auf der Abrechnung.')}</div>`;
+  return html;
+};
+
+AKTION.posNeu = el => posBearbeiten(null, { pid: el.dataset.pid, bereich: el.dataset.bereich, typ: el.dataset.typ });
+AKTION.posBearb = el => { const x = hol('positionen', el.dataset.id); if (x) posBearbeiten(x, {}); };
+
+function aufmassHtml(rows) {
+  const s = aufmassMenge(rows);
+  const wert = r => { const f = ['n', 'l', 'b', 'h'].map(k => r[k] === '' || r[k] == null ? null : num(r[k])).filter(x => x !== null); return f.length ? f.reduce((a, b) => a * b, 1) : 0; };
+  return `<div class="feldtitel" style="margin-bottom:4px">Aufmaß – leere Maße zählen als 1, „abziehen“ für Öffnungen</div>
+  ${rows.map((r, i) => `<div class="amzeile"><input class="amtext" data-am="${i}|t" value="${esc(r.t || '')}" placeholder="Beschreibung, z. B. Fläche Süd"><button type="button" class="knopf klein amx" data-amweg="${i}" aria-label="Zeile entfernen">✕</button>
+    ${[['n', 'Anzahl'], ['l', 'Länge'], ['b', 'Breite'], ['h', 'Höhe']].map(([k, t]) => `<label class="amf"><span>${t}</span><input data-am="${i}|${k}" inputmode="decimal" value="${esc(r[k] ?? '')}"></label>`).join('')}
+    <label class="amab"><input type="checkbox" data-am="${i}|abzug"${r.abzug ? ' checked' : ''}><span>abziehen</span></label><div class="er">= ${r.abzug ? '−' : ''}${zahl(wert(r), 3)}</div></div>`).join('')}
+  <div class="amfuss"><button type="button" class="knopf klein" data-amneu="1">+ Zeile</button><b>Summe ${zahl(s, 3)}</b></div>`;
+}
+
+function posBearbeiten(pos, { pid, bereich, typ }) {
+  const neu = !pos;
+  const p = hol('projekte', neu ? pid : pos.projektId) || {};
+  const t = neu ? typ : pos.typ;
+  const ber = neu ? bereich : (pos.bereich || 'soll');
+  const id = neu ? neueId() : pos.id;
+  const la = lohnart(E('standardLohnart'));
+  const vor = {
+    material: { menge: 1, einheit: 'Stk', aufschlag: p.aufschlag ?? En('aufschlag'), verschnitt: p.verschnitt ?? En('verschnitt') },
+    lohn: { einheit: 'Std.', lohnartId: la.id, vk: la.satz, bezeichnung: la.name },
+    fremd: { menge: 1, einheit: 'psch.', aufschlag: p.aufschlag ?? En('aufschlag') },
+    fahrt: { einheit: 'km', vk: p.kmSatz || En('kmSatz'), ek: En('kmKosten'), bezeichnung: 'Fahrtkosten', kmEinfach: p.km || '', fahrten: '' },
+    pauschal: { menge: 1, einheit: 'psch.' }
+  }[t];
+  const w = neu ? Object.assign({ datum: heute(), gruppe: '' }, vor) : { ...pos };
+  let am = Array.isArray(w.aufmass) ? w.aufmass.map(r => ({ ...r })) : [];
+  const f = [];
+  if (t === 'material') f.push({ n: 'artikelId', l: 'Aus Artikelstamm übernehmen', t: 'select', o: optionen([['', '– frei eingeben –'], ...alle('artikel').sort((a, b) => a.bezeichnung.localeCompare(b.bezeichnung, 'de')).map(a => [a.id, a.bezeichnung + ' (' + eur(a.ek) + '/' + a.einheit + ')'])], w.artikelId) });
+  if (t === 'lohn') f.push({ n: 'lohnartId', l: 'Lohnart', t: 'select', o: optionen(lohnarten().map(l => [l.id, l.name + ' · ' + eur(l.satz) + '/Std.']), w.lohnartId) });
+  f.push({ n: 'bezeichnung', l: t === 'lohn' ? 'Leistung / Text' : 'Bezeichnung', req: true, t: t === 'fremd' || t === 'pauschal' ? 'textarea' : 'text', a: t === 'fremd' || t === 'pauschal' ? 'style="min-height:60px"' : '' });
+  if (ber === 'soll') f.push({ n: 'gruppe', l: 'Gewerk / Gruppe', t: 'select', o: optionen([['', '– ohne –'], ...new Set([...gewerke(), ...(w.gruppe ? [w.gruppe] : [])])].map(x => Array.isArray(x) ? x : [x, x]), w.gruppe) });
+  if (ber === 'ist') f.push({ n: 'datum', l: 'Datum', t: 'datum', halb: true });
+  if (ber === 'ist' && (t === 'material' || t === 'fremd')) f.push({ n: 'lieferant', l: t === 'fremd' ? 'Firma' : 'Lieferant', halb: true });
+  if (t === 'fahrt') {
+    f.push({ n: 'kmEinfach', l: 'Entfernung einfach (km)', t: 'zahl', halb: true }, { n: 'fahrten', l: 'Anzahl Fahrten', t: 'zahl', halb: true });
+    f.push({ n: 'menge', l: 'Kilometer gesamt', t: 'zahl', halb: true, h: 'wird aus Entfernung × 2 × Fahrten berechnet' });
+    f.push({ n: 'vk', l: 'km-Satz Kunde €', t: 'zahl', halb: true }, { n: 'ek', l: 'Eigene Kosten je km €', t: 'zahl', halb: true });
+  } else if (t === 'lohn') {
+    f.push({ n: 'menge', l: 'Stunden', t: 'zahl', halb: true }, { n: 'vk', l: 'Stundensatz €', t: 'zahl', halb: true });
+  } else {
+    f.push({ n: 'menge', l: 'Menge', t: 'zahl', halb: true }, { n: 'einheit', l: 'Einheit', t: 'select', o: optionen([...new Set([...einheiten(), w.einheit].filter(Boolean))], w.einheit), halb: true });
+    if (t === 'pauschal') f.push({ n: 'vk', l: 'Preis je Einheit (Kunde) €', t: 'zahl', halb: true }, { n: 'ek', l: 'Eigene Kosten je Einheit €', t: 'zahl', halb: true });
+    else f.push({ n: 'ek', l: t === 'fremd' ? 'Kosten laut Rechnung je Einheit €' : 'Einkaufspreis je Einheit €', t: 'zahl', halb: true });
+    if (t === 'material') f.push({ n: 'verschnitt', l: 'Verschnitt %', t: 'zahl', halb: true });
+    if (t === 'material' || t === 'fremd') f.push({ n: 'aufschlag', l: 'Aufschlag %', t: 'zahl', halb: true });
+  }
+  f.push({ t: 'html', html: '<div class="vorschau" id="posVorschau"></div>' });
+  if (t === 'material' || t === 'pauschal' || t === 'fremd') f.push({ t: 'html', html: `<div class="feld"><button type="button" class="knopf klein" id="amUmschalter">${am.length ? 'Aufmaß ausblenden' : 'Menge per Aufmaß ermitteln'}</button></div><div class="aufmass${am.length ? '' : ' versteckt'}" id="aufmass"></div>` });
+  f.push({ n: 'notiz', l: 'Notiz', t: 'textarea', a: 'style="min-height:60px"' });
+  if (ber === 'ist' && (t === 'material' || t === 'fremd')) f.push({ t: 'html', html: '<div class="feld"><span class="feldtitel">Beleg</span>' + fotoBereich('position', id, neu ? pid : pos.projektId) + '</div>' });
+  const titel = (neu ? 'Neu: ' : '') + (ber === 'ist' ? ({ material: 'Einkauf', fremd: 'Fremdleistung', fahrt: 'Fahrt', pauschal: 'Pauschale' }[t]) : TYPEN[t]);
+  const bl = bearbeiten({
+    titel, werte: w, felder: f,
+    vorschau: (v, bl) => {
+      if (t === 'fahrt' && v.kmEinfach > 0 && v.fahrten > 0) { const m = 2 * v.kmEinfach * v.fahrten; const mi = $('#f_menge', bl); if (num(mi.value) !== m) mi.value = zahlFeld(m); v.menge = m; }
+      if (am.length) { const m = aufmassMenge(am); const mi = $('#f_menge', bl); if (mi && num(mi.value) !== m) mi.value = zahlFeld(m); v.menge = m; }
+      const x = posWerte(Object.assign({ typ: t }, v));
+      $('#posVorschau', bl).innerHTML = `<span>Einzelpreis Kunde <b>${eur(x.ep)}</b></span><span>Gesamt Kunde <b>${eur(x.vk)}</b></span>${x.ek ? `<span>Einkauf <b>${eur(x.ek)}</b></span>` : ''}${t === 'material' && v.verschnitt ? `<span class="leise">Einkaufsmenge ${zahl(v.menge * (1 + v.verschnitt / 100), 3)}</span>` : ''}`;
+    },
+    nachOeffnen: bl => {
+      const amEl = $('#aufmass', bl);
+      const amZeichnen = () => { if (amEl) amEl.innerHTML = aufmassHtml(am); bl.dispatchEvent(new Event('change')); };
+      if (amEl) {
+        amZeichnen();
+        $('#amUmschalter', bl).onclick = () => {
+          if (amEl.classList.contains('versteckt')) { if (!am.length) am.push({ t: '', n: '', l: '', b: '', h: '', abzug: false }); amEl.classList.remove('versteckt'); $('#amUmschalter', bl).textContent = 'Aufmaß ausblenden'; amZeichnen(); }
+          else { amEl.classList.add('versteckt'); $('#amUmschalter', bl).textContent = 'Menge per Aufmaß ermitteln'; }
+        };
+        amEl.addEventListener('input', ev => {
+          const d = ev.target.dataset.am; if (!d) return;
+          const [i, k] = d.split('|');
+          am[+i][k] = ev.target.type === 'checkbox' ? ev.target.checked : ev.target.value;
+          if (k !== 't') { const zl = ev.target.closest('.amzeile'); const r = am[+i]; const ff = ['n', 'l', 'b', 'h'].map(q => r[q] === '' || r[q] == null ? null : num(r[q])).filter(q => q !== null); $('.er', zl).textContent = '= ' + (r.abzug ? '−' : '') + zahl(ff.length ? ff.reduce((a, b) => a * b, 1) : 0, 3); $('.amfuss b', amEl).textContent = 'Summe ' + zahl(aufmassMenge(am), 3); }
+        });
+        amEl.addEventListener('change', ev => { if (ev.target.type === 'checkbox') amZeichnen(); });
+        amEl.addEventListener('click', ev => {
+          if (ev.target.dataset.amneu) { am.push({ t: '', n: '', l: '', b: '', h: '', abzug: false }); amZeichnen(); $$('input[data-am$="|t"]', amEl).pop()?.focus(); }
+          if (ev.target.dataset.amweg !== undefined) { am.splice(+ev.target.dataset.amweg, 1); amZeichnen(); }
+        });
+      }
+      const art = $('#f_artikelId', bl);
+      if (art) art.addEventListener('change', () => {
+        const a = hol('artikel', art.value); if (!a) return;
+        $('#f_bezeichnung', bl).value = a.bezeichnung;
+        $('#f_ek', bl).value = zahlFeld(a.ek);
+        if (a.einheit) { const s = $('#f_einheit', bl); if (![...s.options].some(o => o.value === a.einheit)) s.add(new Option(a.einheit, a.einheit)); s.value = a.einheit; }
+        if (a.aufschlag || a.aufschlag === 0) $('#f_aufschlag', bl).value = zahlFeld(a.aufschlag);
+        if (a.verschnitt || a.verschnitt === 0) $('#f_verschnitt', bl).value = zahlFeld(a.verschnitt);
+        if (a.lieferant && $('#f_lieferant', bl)) $('#f_lieferant', bl).value = a.lieferant;
+        if (a.gruppe && $('#f_gruppe', bl)) $('#f_gruppe', bl).value = a.gruppe;
+        bl.dispatchEvent(new Event('change'));
+      });
+      const lsel = $('#f_lohnartId', bl);
+      if (lsel) lsel.addEventListener('change', () => { const l = hol('lohnarten', lsel.value); if (!l) return; $('#f_vk', bl).value = zahlFeld(l.satz); const b = $('#f_bezeichnung', bl); if (!b.value || lohnarten().some(x => x.name === b.value)) b.value = l.name; bl.dispatchEvent(new Event('change')); });
+    },
+    speichern: async v => {
+      if (am.length) { am = am.filter(r => r.t || r.n || r.l || r.b || r.h); v.menge = aufmassMenge(am); }
+      if (t === 'fahrt' && v.kmEinfach > 0 && v.fahrten > 0) v.menge = 2 * v.kmEinfach * v.fahrten;
+      const z = Object.assign(pos || { id, projektId: pid, bereich: ber, typ: t, sort: vonProjekt('positionen', pid).length }, v, { aufmass: am.length ? am : null });
+      if (t === 'lohn') z.einheit = 'Std.';
+      if (t === 'fahrt') z.einheit = 'km';
+      await speichere('positionen', z);
+      if (neu) toast('Gespeichert');
+    },
+    loeschen: neu ? null : async () => { await loesche('positionen', pos.id); },
+    abbruch: neu ? () => { fotosZu('position', id).forEach(x => loesche('fotos', x.id)); } : null
+  });
+  return bl;
+}
+
+/* ---------- Fotobereich in Blättern ---------- */
+function fotoBereich(typ, bezugId, pid) {
+  return `<div data-fotobereich data-typ="${typ}" data-bezug="${bezugId}" data-pid="${pid || ''}">
+    <div class="knopfreihe" style="margin-bottom:8px"><button type="button" class="knopf klein" data-a="fotoNeu" data-kamera="1">📷 Kamera</button><button type="button" class="knopf klein" data-a="fotoNeu">🖼 Galerie</button></div>
+    <div class="fb-raster">${fotoRaster(fotosZu(typ, bezugId), true)}</div></div>`;
+}
+AKTION.fotoNeu = async el => {
+  const fb = el.closest('[data-fotobereich]');
+  const dateien = await fotoWaehlen(!!el.dataset.kamera);
+  if (!dateien.length) return;
+  const statusSel = el.closest('.blatt') && $('#f_status', el.closest('.blatt'));
+  const phase = statusSel && fb.dataset.typ === 'doku' && $('#f_art', el.closest('.blatt'))?.value === 'mangel' ? (statusSel.value === 'behoben' ? 'nachher' : 'vorher') : '';
+  toast(dateien.length > 1 ? dateien.length + ' Fotos werden verarbeitet …' : 'Foto wird verarbeitet …');
+  for (const d of dateien) {
+    try { await fotoAnlegen(d, { projektId: fb.dataset.pid, bezugTyp: fb.dataset.typ, bezugId: fb.dataset.bezug, phase }); }
+    catch (e) { toast(e.message); }
+  }
+  $('.fb-raster', fb).innerHTML = fotoRaster(fotosZu(fb.dataset.typ, fb.dataset.bezug), true);
+  if (!el.closest('.blatt')) zeichnen();
+};
+
+/* ---------- Zeiten ---------- */
+PROJEKT_TAB.zeiten = p => {
+  const liste = vonProjekt('zeiten', p.id).sort((a, b) => (b.datum + (b.von || '')).localeCompare(a.datum + (a.von || '')));
+  const z = projektZahlen(p.id);
+  let html = `<div class="knopfreihe" style="margin-bottom:12px"><button class="knopf klein" data-a="schnell" data-was="zeit" data-pid="${p.id}">+ Zeit nachtragen</button><button class="knopf klein" data-a="uhrStart" data-pid="${p.id}">⏱ Stoppuhr starten</button></div>`;
+  html += `<div class="raster" style="margin-bottom:12px"><div class="kennzahl"><span>Ist-Stunden</span><b>${zahl(z.ist.std)}</b></div><div class="kennzahl"><span>Soll-Stunden</span><b>${zahl(z.soll.std)}</b></div><div class="kennzahl"><span>Noch nicht abgerechnet</span><b>${zahl(z.ist.offenStd)} Std.</b></div></div>`;
+  if (!liste.length) return html + `<div class="liste">${leer('Noch keine Zeiten', 'Mit der Stoppuhr oder per Nachtragen erfassen.')}</div>`;
+  let monat = '';
+  html += '<div class="liste">';
+  liste.forEach(x => {
+    const m = (x.datum || '').slice(0, 7);
+    if (m !== monat) { monat = m; const s = liste.filter(y => (y.datum || '').startsWith(m)).reduce((a, y) => a + (+y.stunden || 0), 0); html += `<div class="gruppenkopf"><span>${MONATE[+m.slice(5) - 1] || ''} ${m.slice(0, 4)}</span><span>${zahl(s)} Std.</span></div>`; }
+    html += zeitZeile(x);
+  });
+  return html + '</div>';
+};
+function zeitZeile(x, mitProjekt) {
+  const l = hol('lohnarten', x.lohnartId);
+  return `<div class="zeile" data-a="zeitBearb" data-id="${x.id}"><div class="mitte"><div class="titel">${wochentag(x.datum)} ${datumDE(x.datum)}${x.von ? ' · ' + esc(x.von) + '–' + esc(x.bis) : ''}</div>
+    <div class="unter">${mitProjekt ? esc(projektName(x.projektId)) + ' · ' : ''}${esc(x.taetigkeit || (l ? l.name : ''))}${x.pause ? ' · ' + x.pause + ' Min. Pause' : ''}${x.abgerechnetIn ? ' · abgerechnet' : (x.abrechenbar ? '' : ' · nicht abrechenbar')}</div></div>
+    <div class="wert">${zahl(x.stunden)} Std.<small>${x.abrechenbar ? eur((+x.stunden || 0) * (+x.satz || 0)) : '–'}</small></div></div>`;
+}
+AKTION.zeitBearb = el => zeitBearbeiten(hol('zeiten', el.dataset.id), {});
+
+function zeitBearbeiten(z, { pid, werte, nachSpeichern }) {
+  const neu = !z;
+  const la = lohnart(E('standardLohnart'));
+  const w = neu ? Object.assign({ datum: heute(), pause: 0, lohnartId: la.id, satz: la.satz, abrechenbar: true, person: (ls.getJ('bs_benutzer') || {}).name || E('inhaber'), projektId: pid || ls.get('bs_letztesProjekt') || '' }, werte || {}) : { ...z };
+  if (w.von && w.bis) w.stunden = zeitStunden(w);
+  bearbeiten({
+    titel: neu ? 'Arbeitszeit erfassen' : 'Arbeitszeit bearbeiten',
+    werte: w,
+    felder: [
+      { n: 'projektId', l: 'Projekt', t: 'select', o: projektOptionen(w.projektId, true), req: true },
+      { n: 'datum', l: 'Datum', t: 'datum', req: true, halb: true },
+      { n: 'pause', l: 'Pause (Minuten)', t: 'zahl', halb: true },
+      { n: 'von', l: 'Von', t: 'zeit', halb: true },
+      { n: 'bis', l: 'Bis', t: 'zeit', halb: true },
+      { n: 'stunden', l: 'Stunden', t: 'zahl', halb: true, h: 'aus Von/Bis berechnet – ohne Uhrzeiten direkt eintragen' },
+      { n: 'person', l: 'Person', halb: true },
+      { n: 'lohnartId', l: 'Lohnart', t: 'select', o: optionen(lohnarten().map(l => [l.id, l.name])), halb: true },
+      { n: 'satz', l: 'Stundensatz €', t: 'zahl', halb: true },
+      { n: 'taetigkeit', l: 'Tätigkeit', p: 'z. B. Balkenlage verlegt' },
+      { n: 'abrechenbar', l: 'Abrechenbar', t: 'check' },
+      { t: 'html', html: '<div class="vorschau" id="zeitVorschau"></div>' }
+    ],
+    vorschau: (v, bl) => {
+      if (v.von && v.bis) { v.stunden = zeitStunden(v); const s = $('#f_stunden', bl); if (num(s.value) !== v.stunden) s.value = zahlFeld(v.stunden); }
+      $('#zeitVorschau', bl).innerHTML = `<span><b>${zahl(v.stunden)}</b> Std.</span>${v.abrechenbar ? `<span>Wert <b>${eur(v.stunden * v.satz)}</b></span>` : '<span class="leise">nicht abrechenbar</span>'}`;
+    },
+    nachOeffnen: bl => {
+      const s = $('#f_lohnartId', bl); s.value = w.lohnartId || la.id;
+      s.addEventListener('change', () => { const l = hol('lohnarten', s.value); if (l) { $('#f_satz', bl).value = zahlFeld(l.satz); bl.dispatchEvent(new Event('change')); } });
+    },
+    speichern: async v => {
+      if (v.von && v.bis) v.stunden = zeitStunden(v);
+      if (!(v.stunden > 0)) { toast('Bitte Von/Bis oder Stunden eintragen.'); return false; }
+      if (z && z.abgerechnetIn && (v.stunden !== z.stunden || v.satz !== z.satz) && !confirm('Diese Zeit ist bereits abgerechnet. Trotzdem ändern? Die Abrechnung bleibt unverändert.')) return false;
+      await speichere('zeiten', Object.assign(z || {}, v));
+      ls.set('bs_letztesProjekt', v.projektId);
+      if (nachSpeichern) nachSpeichern();
+      toast('Zeit gespeichert: ' + zahl(v.stunden) + ' Std.');
+    },
+    loeschen: neu ? null : async () => { await loesche('zeiten', z.id); }
+  });
+}
+
+/* ---------- Dokumentation ---------- */
+PROJEKT_TAB.doku = p => {
+  const f = UI.dokuFilter || '';
+  let liste = vonProjekt('doku', p.id).sort((a, b) => (b.datum || '').localeCompare(a.datum || '') || (b.erstellt || '').localeCompare(a.erstellt || ''));
+  if (f) liste = liste.filter(d => d.art === f);
+  const lose = fotosZu('projekt', p.id);
+  let html = `<div class="knopfreihe" style="margin-bottom:10px">${Object.entries(DOKU_ARTEN).map(([k, t]) => `<button class="knopf klein" data-a="dokuNeu" data-art="${k}" data-pid="${p.id}">+ ${t}</button>`).join('')}</div>
+    <div class="chips">${[['', 'Alle'], ...Object.entries(DOKU_ARTEN)].map(([k, t]) => `<button class="chip${f === k ? ' aktiv' : ''}" data-a="dokuFilter" data-f="${k}">${t}</button>`).join('')}</div>`;
+  html += liste.length ? `<div class="liste">${liste.map(dokuZeile).join('')}</div>` : `<div class="liste">${leer('Keine Einträge', 'Tagesberichte, Mängel, Absprachen und Notizen mit Fotos.')}</div>`;
+  html += `<div class="abschnitt"><h2>Projektfotos</h2></div><div class="karte">${fotoBereich('projekt', p.id, p.id)}</div>`;
+  return html;
+};
+function dokuZeile(d) {
+  const fotos = fotosZu('doku', d.id);
+  return `<div class="zeile" data-a="dokuOeffnen" data-id="${d.id}" style="align-items:flex-start"><div class="mitte">
+    <div class="titel">${esc(d.titel || DOKU_ARTEN[d.art])}</div>
+    <div class="unter">${DOKU_ARTEN[d.art] || ''} · ${wochentag(d.datum)} ${datumDE(d.datum)}${d.person ? ' · mit ' + esc(d.person) : ''}</div>
+    ${d.text ? `<div class="klein" style="margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(d.text)}</div>` : ''}
+    ${fotos.length ? `<div class="fotostreifen">${fotos.slice(0, 6).map(f => `<img src="${esc(f.thumb)}" alt="">`).join('')}${fotos.length > 6 ? `<span class="leise klein" style="align-self:center">+${fotos.length - 6}</span>` : ''}</div>` : ''}</div>
+    ${d.art === 'mangel' ? badge(d.status === 'behoben' ? 'behoben' : 'offen', d.status === 'behoben' ? 'behoben' : 'offen') : ''}</div>`;
+}
+AKTION.dokuFilter = el => { UI.dokuFilter = el.dataset.f; zeichnen(); };
+AKTION.dokuNeu = el => dokuBearbeiten(null, { pid: el.dataset.pid, art: el.dataset.art });
+AKTION.dokuOeffnen = el => dokuBearbeiten(hol('doku', el.dataset.id), {});
+
+function dokuBearbeiten(d, { pid, art }) {
+  const neu = !d;
+  const id = neu ? neueId() : d.id;
+  const w = neu ? { art: art || 'bericht', datum: heute(), status: 'offen', projektId: pid || ls.get('bs_letztesProjekt') || '' } : { ...d };
+  bearbeiten({
+    titel: neu ? 'Neu: ' + DOKU_ARTEN[w.art] : DOKU_ARTEN[w.art],
+    werte: w,
+    felder: [
+      { n: 'projektId', l: 'Projekt', t: 'select', o: projektOptionen(w.projektId, true), req: true },
+      { n: 'art', l: 'Art', t: 'select', o: optionen(Object.entries(DOKU_ARTEN), w.art), halb: true },
+      { n: 'datum', l: 'Datum', t: 'datum', halb: true },
+      { n: 'titel', l: 'Titel', p: w.art === 'bericht' ? 'z. B. Unterkonstruktion fertig' : w.art === 'mangel' ? 'z. B. Diele 3 gerissen' : '' },
+      { n: 'status', l: 'Status des Mangels', t: 'select', o: optionen([['offen', 'Offen'], ['behoben', 'Behoben']], w.status), halb: true },
+      { n: 'person', l: 'Gesprächspartner', halb: true },
+      { n: 'text', l: 'Text', t: 'textarea', a: 'style="min-height:130px"' },
+      { t: 'html', html: '<div class="feld"><span class="feldtitel">Fotos</span>' + fotoBereich('doku', id, w.projektId) + '</div>' }
+    ],
+    vorschau: (v, bl) => {
+      $('[data-feld="status"]', bl).classList.toggle('versteckt', v.art !== 'mangel');
+      $('[data-feld="person"]', bl).classList.toggle('versteckt', v.art !== 'absprache');
+      $('[data-fotobereich]', bl).dataset.pid = v.projektId;
+    },
+    speichern: async v => {
+      const z = Object.assign(d || { id }, v);
+      await speichere('doku', z);
+      fotosZu('doku', id).forEach(f => { if (f.projektId !== v.projektId) { f.projektId = v.projektId; speichere('fotos', f); } });
+      toast('Gespeichert');
+    },
+    loeschen: neu ? null : async () => { await loesche('doku', d.id); fotosZu('doku', d.id).forEach(f => loesche('fotos', f.id)); },
+    abbruch: neu ? () => { fotosZu('doku', id).forEach(f => loesche('fotos', f.id)); } : null
+  });
+}
+
+/* ---------- Aufgaben & Termine ---------- */
+function aufgabeZeile(a, ohneProjekt) {
+  const h = heute();
+  const ueber = !a.erledigt && a.datum && a.datum < h;
+  return `<div class="zeile${a.erledigt ? ' erledigt' : ''}"><input type="checkbox" data-c="aufgabeHaken" data-id="${a.id}"${a.erledigt ? ' checked' : ''} style="width:22px;height:22px;accent-color:var(--akz);flex:none" aria-label="erledigt">
+    <div class="mitte" data-a="aufgabeBearb" data-id="${a.id}"><div class="titel">${a.art === 'termin' ? '📅 ' : ''}${esc(a.titel)}</div>
+    <div class="unter">${a.datum ? `<span class="${ueber ? 'ampel-schlecht' : ''}">${wochentag(a.datum)} ${datumDE(a.datum)}${a.zeit ? ' · ' + esc(a.zeit) + ' Uhr' : ''}</span>` : 'ohne Datum'}${!ohneProjekt && a.projektId ? ' · ' + esc(projektName(a.projektId)) : ''}</div></div></div>`;
+}
+AKTION.aufgabeHaken = async el => { const a = hol('aufgaben', el.dataset.id); a.erledigt = el.checked; await speichere('aufgaben', a); setTimeout(zeichnen, 250); };
+AKTION.aufgabeBearb = el => aufgabeBearbeiten(hol('aufgaben', el.dataset.id), {});
+AKTION.aufgabeNeu = el => aufgabeBearbeiten(null, { pid: el.dataset.pid || '', art: el.dataset.art });
+
+PROJEKT_TAB.aufgaben = p => {
+  const liste = vonProjekt('aufgaben', p.id).sort((a, b) => (a.erledigt - b.erledigt) || ((a.datum || '9') + (a.zeit || '')).localeCompare((b.datum || '9') + (b.zeit || '')));
+  return `<div class="knopfreihe" style="margin-bottom:12px"><button class="knopf klein" data-a="aufgabeNeu" data-pid="${p.id}" data-art="aufgabe">+ Aufgabe</button><button class="knopf klein" data-a="aufgabeNeu" data-pid="${p.id}" data-art="termin">+ Termin</button></div>
+    ${liste.length ? `<div class="liste">${liste.map(a => aufgabeZeile(a, true)).join('')}</div>` : `<div class="liste">${leer('Keine Aufgaben', 'To-dos und Termine für diese Baustelle.')}</div>`}`;
+};
+
+function aufgabeBearbeiten(a, { pid, art }) {
+  const neu = !a;
+  const w = neu ? { art: art || 'aufgabe', projektId: pid, datum: art === 'termin' ? heute() : '' } : { ...a };
+  bearbeiten({
+    titel: neu ? (w.art === 'termin' ? 'Neuer Termin' : 'Neue Aufgabe') : (w.art === 'termin' ? 'Termin' : 'Aufgabe'),
+    werte: w,
+    felder: [
+      { n: 'titel', l: 'Titel', req: true },
+      { n: 'art', l: 'Art', t: 'select', o: optionen([['aufgabe', 'Aufgabe'], ['termin', 'Termin']], w.art), halb: true },
+      { n: 'projektId', l: 'Projekt', t: 'select', o: optionen([['', '– kein Projekt –'], ...alle('projekte').filter(p => p.status !== 'bezahlt' || p.id === w.projektId).map(p => [p.id, p.name])], w.projektId), halb: true },
+      { n: 'datum', l: 'Datum / fällig', t: 'datum', halb: true },
+      { n: 'zeit', l: 'Uhrzeit', t: 'zeit', halb: true },
+      { n: 'notiz', l: 'Notiz', t: 'textarea' },
+      { n: 'erledigt', l: 'Erledigt', t: 'check' }
+    ],
+    speichern: async v => { await speichere('aufgaben', Object.assign(a || {}, v)); },
+    loeschen: neu ? null : async () => { await loesche('aufgaben', a.id); }
+  });
+}
+
+SEITEN.kalender = r => {
+  const zeigeErledigt = r.a === 'erledigt';
+  const h = heute(), morgen = tageDazu(h, 1), woche = tageDazu(h, 7);
+  let liste = alle('aufgaben').filter(a => zeigeErledigt ? a.erledigt : !a.erledigt);
+  const gruppen = [['Überfällig', a => a.datum && a.datum < h], ['Heute', a => a.datum === h], ['Morgen', a => a.datum === morgen],
+    ['Nächste 7 Tage', a => a.datum > morgen && a.datum <= woche], ['Später', a => a.datum > woche], ['Ohne Datum', a => !a.datum]];
+  liste.sort((a, b) => ((a.datum || '9') + (a.zeit || '')).localeCompare((b.datum || '9') + (b.zeit || '')));
+  if (zeigeErledigt) liste.reverse();
+  let html = `<div class="chips"><a class="chip${zeigeErledigt ? '' : ' aktiv'}" href="#/kalender">Offen</a><a class="chip${zeigeErledigt ? ' aktiv' : ''}" href="#/kalender/erledigt">Erledigt</a></div>`;
+  if (!liste.length) html += `<div class="liste">${leer(zeigeErledigt ? 'Nichts erledigt' : 'Alles erledigt', 'Aufgaben und Termine legst du mit + an.')}</div>`;
+  else if (zeigeErledigt) html += `<div class="liste">${liste.slice(0, 100).map(a => aufgabeZeile(a)).join('')}</div>`;
+  else {
+    html += '<div class="liste">';
+    gruppen.forEach(([t, f]) => { const g = liste.filter(f); if (g.length) html += `<div class="gruppenkopf"><span>${t}</span><span>${g.length}</span></div>` + g.map(a => aufgabeZeile(a)).join(''); });
+    html += '</div>';
+  }
+  return rahmen('Termine & Aufgaben', html, { fab: 'aufgabeNeu' });
+};
+
+/* ---------- Zahlungen ---------- */
+AKTION.zahlungNeu = el => zahlungBearbeiten(null, el.dataset.pid);
+AKTION.zahlungBearb = el => zahlungBearbeiten(hol('zahlungen', el.dataset.id));
+function zahlungBearbeiten(z, pid) {
+  const neu = !z;
+  bearbeiten({
+    titel: neu ? 'Zahlung erfassen' : 'Zahlung',
+    werte: neu ? { datum: heute(), art: projektZahlen(pid).abgerechnetBrutto ? 'zahlung' : 'anzahlung' } : z,
+    felder: [
+      { n: 'datum', l: 'Datum', t: 'datum', halb: true, req: true },
+      { n: 'betrag', l: 'Betrag €', t: 'zahl', halb: true, req: true },
+      { n: 'art', l: 'Art', t: 'select', o: optionen(Object.entries(ZAHLUNG_ARTEN), z?.art || (projektZahlen(pid).abgerechnetBrutto ? 'zahlung' : 'anzahlung')) },
+      { n: 'notiz', l: 'Notiz', p: 'z. B. bar erhalten, Überweisung' },
+      { t: 'html', html: '<p class="leise klein" style="grid-column:span 2;margin:0">Anzahlungen und Abschläge, die noch keiner Abrechnung zugeordnet sind, werden bei der nächsten Abrechnung automatisch abgezogen.</p>' }
+    ],
+    speichern: async v => { if (!(v.betrag > 0)) { toast('Bitte einen Betrag eintragen.'); return false; } await speichere('zahlungen', Object.assign(z || { projektId: pid }, v)); },
+    loeschen: neu ? null : async () => { await loesche('zahlungen', z.id); }
+  });
+}
+
+/* ===================== Erfassen (Plus-Knopf) ===================== */
+AKTION.erfassen = () => {
+  const vorher = ls.get('bs_letztesProjekt');
+  const kacheln = [
+    ['uhr', '⏱', 'Stoppuhr', 'Zeit live erfassen'], ['zeit', '🕒', 'Zeit nachtragen', 'von–bis, Pause'],
+    ['foto', '📷', 'Foto', 'ins Projekt'], ['bericht', '📝', 'Tagesbericht', 'mit Fotos'],
+    ['einkauf', '🧾', 'Einkauf', 'mit Beleg'], ['mangel', '⚠️', 'Mangel', 'mit Foto'],
+    ['fahrt', '🚗', 'Fahrt', 'km'], ['absprache', '🤝', 'Absprache', 'mit Kunde'],
+    ['aufgabe', '✅', 'Aufgabe / Termin', ''], ['projekt', '➕', 'Neues Projekt', '']
+  ];
+  const bl = blattOeffnen({
+    titel: 'Erfassen',
+    html: formular([{ n: 'projektId', l: 'Projekt', t: 'select', o: projektOptionen(hol('projekte', vorher) ? vorher : '', true) }]) +
+      `<div class="kachelwahl" style="margin-top:14px">${kacheln.map(([k, i, t, s]) => `<button type="button" data-was="${k}"><span>${i}</span>${t}<small>${s}</small></button>`).join('')}</div>`
+  });
+  bl.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-was]'); if (!b) return;
+    const pid = $('#f_projektId', bl).value;
+    schnellAktion(b.dataset.was, pid);
+  });
+};
+AKTION.schnell = el => schnellAktion(el.dataset.was, el.dataset.pid);
+async function schnellAktion(was, pid) {
+  const braucht = !['projekt', 'aufgabe', 'zeit'].includes(was);
+  if (braucht && !pid) { toast('Bitte zuerst ein Projekt wählen.'); return; }
+  if (pid) ls.set('bs_letztesProjekt', pid);
+  blattSchliessen(true);
+  switch (was) {
+    case 'uhr': uhrStarten(pid); break;
+    case 'zeit': zeitBearbeiten(null, { pid }); break;
+    case 'foto': {
+      const dateien = await fotoWaehlen(true);
+      for (const d of dateien) await fotoAnlegen(d, { projektId: pid, bezugTyp: 'projekt', bezugId: pid });
+      if (dateien.length) { toast('Foto gespeichert'); geheZu('#/projekt/' + pid + '/doku'); }
+      break;
+    }
+    case 'bericht': case 'mangel': case 'absprache': dokuBearbeiten(null, { pid, art: was }); break;
+    case 'einkauf': posBearbeiten(null, { pid, bereich: 'ist', typ: 'material' }); break;
+    case 'fahrt': posBearbeiten(null, { pid, bereich: 'ist', typ: 'fahrt' }); break;
+    case 'aufgabe': aufgabeBearbeiten(null, { pid, art: 'aufgabe' }); break;
+    case 'projekt': projektBearbeiten(null); break;
+  }
+}
+
+/* ===================== Kunden ===================== */
+SEITEN.kunden = () => {
+  const s = (UI.kundenSuche || '').toLowerCase();
+  let liste = alle('kunden').sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  if (s) liste = liste.filter(k => [k.name, k.ort, k.ansprechpartner, k.telefon, k.email].join(' ').toLowerCase().includes(s));
+  const html = `<input class="suche" type="search" placeholder="Kunden suchen …" value="${esc(UI.kundenSuche || '')}" oninput="UI.kundenSuche=this.value;clearTimeout(UI.st);UI.st=setTimeout(()=>{zeichnen();const s=document.querySelector('.suche');if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length)}},250)">
+    ${liste.length ? `<div class="liste">${liste.map(k => { const n = alle('projekte').filter(p => p.kundeId === k.id).length; return `<div class="zeile" data-a="geh" data-h="#/kunde/${k.id}"><div class="mitte"><div class="titel">${esc(k.name)}</div><div class="unter">${esc([k.ort, k.telefon].filter(Boolean).join(' · '))}</div></div><span class="leise klein">${n} Projekt${n === 1 ? '' : 'e'}</span></div>`; }).join('')}</div>` : `<div class="liste">${leer('Keine Kunden', s ? 'Nichts gefunden.' : 'Lege mit + einen Kunden an.')}</div>`}`;
+  return rahmen('Kunden', html, { zurueck: true, fab: 'kundeNeu' });
+};
+SEITEN.kunde = r => {
+  const k = hol('kunden', r.a);
+  if (!k) return rahmen('Kunde', `<div class="liste">${leer('Kunde nicht gefunden')}</div>`, { zurueck: true });
+  const projekte = alle('projekte').filter(p => p.kundeId === k.id).sort((a, b) => (b.nr || '').localeCompare(a.nr || ''));
+  const adr = [k.strasse, k.ort].filter(Boolean).join(', ');
+  const html = `<div class="karte"><h2>${esc(k.name)} <button class="knopf klein" data-a="kundeBearb" data-id="${k.id}">Bearbeiten</button></h2>
+    ${k.ansprechpartner ? `<div>${esc(k.ansprechpartner)}</div>` : ''}${adr ? `<div>${esc(adr)} · <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adr)}" target="_blank" rel="noopener">Karte</a></div>` : ''}
+    <div class="knopfreihe" style="margin-top:10px">${k.telefon ? `<a class="knopf klein" href="tel:${esc(k.telefon)}">📞 ${esc(k.telefon)}</a>` : ''}${k.email ? `<a class="knopf klein" href="mailto:${esc(k.email)}">✉️ ${esc(k.email)}</a>` : ''}</div>
+    ${k.notiz ? `<p class="leise" style="white-space:pre-wrap">${esc(k.notiz)}</p>` : ''}</div>
+    <div class="abschnitt"><h2>Projekte</h2><button class="knopf klein" data-a="projektFuerKunde" data-id="${k.id}">+ Projekt</button></div>
+    ${projekte.length ? `<div class="liste">${projekte.map(projektZeile).join('')}</div>` : `<div class="liste">${leer('Noch keine Projekte')}</div>`}`;
+  return rahmen(k.name, html, { zurueck: true });
+};
+AKTION.kundeNeu = () => kundeBearbeiten(null);
+AKTION.kundeBearb = el => kundeBearbeiten(hol('kunden', el.dataset.id));
+AKTION.projektFuerKunde = el => { projektBearbeiten(null); setTimeout(() => { const s = $('#f_kundeId'); if (s) s.value = el.dataset.id; }, 30); };
+function kundeBearbeiten(k) {
+  const neu = !k;
+  bearbeiten({
+    titel: neu ? 'Neuer Kunde' : 'Kunde bearbeiten', werte: k || {},
+    felder: [
+      { n: 'name', l: 'Name / Firma', req: true },
+      { n: 'ansprechpartner', l: 'Ansprechpartner' },
+      { n: 'strasse', l: 'Straße', halb: true }, { n: 'ort', l: 'PLZ und Ort', halb: true },
+      { n: 'telefon', l: 'Telefon', t: 'tel', halb: true }, { n: 'email', l: 'Mail', t: 'email', halb: true },
+      { n: 'notiz', l: 'Notiz', t: 'textarea' }
+    ],
+    speichern: async v => { const z = await speichere('kunden', Object.assign(k || {}, v)); if (neu) geheZu('#/kunde/' + z.id); },
+    loeschen: neu ? null : async () => {
+      if (alle('projekte').some(p => p.kundeId === k.id)) { toast('Der Kunde hat noch Projekte – erst diese einem anderen Kunden zuordnen oder löschen.'); return; }
+      await loesche('kunden', k.id); geheZu('#/kunden');
+    }
+  });
+}
+
+/* ===================== Artikel & Lohnarten ===================== */
+SEITEN.artikel = () => {
+  const s = (UI.artikelSuche || '').toLowerCase();
+  let liste = alle('artikel');
+  if (s) liste = liste.filter(a => [a.bezeichnung, a.nr, a.lieferant, a.gruppe].join(' ').toLowerCase().includes(s));
+  const html = `<input class="suche" type="search" placeholder="Artikel suchen …" value="${esc(UI.artikelSuche || '')}" oninput="UI.artikelSuche=this.value;clearTimeout(UI.st);UI.st=setTimeout(()=>{zeichnen();const s=document.querySelector('.suche');if(s){s.focus();s.setSelectionRange(s.value.length,s.value.length)}},250)">
+    ${liste.length ? '<div class="liste">' + gruppenSortiert(liste.map(a => Object.assign({}, a, { sort: 0, erstellt: a.bezeichnung }))).map(([g, l]) => `<div class="gruppenkopf"><span>${esc(g || 'Ohne Gruppe')}</span><span>${l.length}</span></div>` + l.map(a => `<div class="zeile" data-a="artikelBearb" data-id="${a.id}"><div class="mitte"><div class="titel">${esc(a.bezeichnung)}</div><div class="unter">${esc([a.nr, a.lieferant].filter(Boolean).join(' · '))}</div></div><div class="wert">${eur(a.ek)} / ${esc(a.einheit)}<small>VK ${eur(posWerte({ typ: 'material', menge: 1, ek: a.ek, aufschlag: a.aufschlag, verschnitt: 0 }).vk)}</small></div></div>`).join('')).join('') + '</div>'
+      : `<div class="liste">${leer('Keine Artikel', 'Häufig verwendetes Material mit Einkaufspreis anlegen und in der Kalkulation übernehmen.')}</div>`}`;
+  return rahmen('Artikel', html, { zurueck: true, fab: 'artikelNeu' });
+};
+AKTION.artikelNeu = () => artikelBearbeiten(null);
+AKTION.artikelBearb = el => artikelBearbeiten(hol('artikel', el.dataset.id));
+function artikelBearbeiten(a) {
+  const neu = !a;
+  const w = a || { einheit: 'Stk', aufschlag: En('aufschlag'), verschnitt: En('verschnitt') };
+  bearbeiten({
+    titel: neu ? 'Neuer Artikel' : 'Artikel', werte: w,
+    felder: [
+      { n: 'bezeichnung', l: 'Bezeichnung', req: true, p: 'z. B. KVH Fichte 60×120 mm' },
+      { n: 'nr', l: 'Artikelnummer', halb: true }, { n: 'lieferant', l: 'Lieferant', halb: true },
+      { n: 'einheit', l: 'Einheit', t: 'select', o: optionen([...new Set([...einheiten(), w.einheit].filter(Boolean))], w.einheit), halb: true },
+      { n: 'ek', l: 'Einkaufspreis je Einheit €', t: 'zahl', halb: true },
+      { n: 'aufschlag', l: 'Aufschlag %', t: 'zahl', halb: true }, { n: 'verschnitt', l: 'Verschnitt %', t: 'zahl', halb: true },
+      { n: 'gruppe', l: 'Gewerk / Gruppe', t: 'select', o: optionen([['', '– ohne –'], ...gewerke()], w.gruppe) }
+    ],
+    speichern: async v => { await speichere('artikel', Object.assign(a || {}, v)); },
+    loeschen: neu ? null : async () => { await loesche('artikel', a.id); }
+  });
+}
+SEITEN.lohnarten = () => {
+  const std = E('standardLohnart');
+  const html = `<div class="liste">${lohnarten().map(l => `<div class="zeile" data-a="lohnBearb" data-id="${l.id}"><div class="mitte"><div class="titel">${esc(l.name)}</div><div class="unter">${l.id === std ? 'Standard' : ''}</div></div><div class="wert">${eur(l.satz)} / Std.</div></div>`).join('') || leer('Keine Lohnarten')}</div>
+    <p class="leise klein">Die Standard-Lohnart wird bei neuen Zeiten und Lohnpositionen vorbelegt. Spätere Helfer bekommen hier ihre eigenen Sätze.</p>`;
+  return rahmen('Lohnarten', html, { zurueck: true, fab: 'lohnNeu' });
+};
+AKTION.lohnNeu = () => lohnBearbeiten(null);
+AKTION.lohnBearb = el => lohnBearbeiten(hol('lohnarten', el.dataset.id));
+function lohnBearbeiten(l) {
+  const neu = !l;
+  bearbeiten({
+    titel: neu ? 'Neue Lohnart' : 'Lohnart', werte: Object.assign({ standard: l && l.id === E('standardLohnart') }, l || {}),
+    felder: [{ n: 'name', l: 'Bezeichnung', req: true, p: 'z. B. Helfer, Maschinenstunde' }, { n: 'satz', l: 'Stundensatz €', t: 'zahl', req: true }, { n: 'standard', l: 'Als Standard verwenden', t: 'check' }],
+    speichern: async v => { const std = v.standard; delete v.standard; const z = await speichere('lohnarten', Object.assign(l || {}, v)); if (std) await setzeE('standardLohnart', z.id); },
+    loeschen: neu || l.id === E('standardLohnart') ? null : async () => { await loesche('lohnarten', l.id); }
+  });
+}
+
+/* ===================== Mehr ===================== */
+SEITEN.mehr = () => {
+  const b = ls.getJ('bs_benutzer');
+  const eintraege = [['#/kunden', '👥', 'Kunden', alle('kunden').length + ' Einträge'], ['#/artikel', '🪵', 'Artikel', 'Material mit Einkaufspreisen'],
+    ['#/lohnarten', '⚒️', 'Lohnarten', 'Stundensätze'], ['#/auswertung', '📊', 'Auswertung', 'Soll/Ist, Gewinn, Monate, offene Beträge'],
+    ['#/papierkorb', '🗑', 'Papierkorb', 'Gelöschtes wiederherstellen'], ['#/einstellungen', '⚙️', 'Einstellungen', 'Briefkopf, Standardwerte, Konto, Sicherung']];
+  return rahmen('Mehr', `<div class="liste">${eintraege.map(([h, i, t, u]) => `<div class="zeile" data-a="geh" data-h="${h}"><span style="font-size:1.4rem;width:30px;text-align:center">${i}</span><div class="mitte"><div class="titel">${t}</div><div class="unter">${esc(u)}</div></div><span class="leise">›</span></div>`).join('')}</div>
+    <p class="leise klein" style="text-align:center">Baustellen ${APP_VERSION}${b ? ' · angemeldet als ' + esc(b.mail) : modus() === 'lokal' ? ' · nur auf diesem Gerät' : ''}</p>`);
+};
+
+/* ===================== Auswertung ===================== */
+SEITEN.auswertung = r => {
+  const jahre = new Set([String(new Date().getFullYear())]);
+  alle('zeiten').forEach(z => z.datum && jahre.add(z.datum.slice(0, 4)));
+  alle('dokumente').forEach(z => z.datum && jahre.add(z.datum.slice(0, 4)));
+  const jahr = r.a || String(new Date().getFullYear());
+  const monate = Array.from({ length: 12 }, (_, i) => ({ m: jahr + '-' + zz(i + 1), std: 0, kosten: 0, abgerechnet: 0, eingang: 0 }));
+  const mon = d => monate[+(d || '').slice(5, 7) - 1];
+  alle('zeiten').filter(z => (z.datum || '').startsWith(jahr)).forEach(z => { mon(z.datum).std += +z.stunden || 0; });
+  alle('positionen').filter(p => p.bereich === 'ist' && (p.datum || '').startsWith(jahr)).forEach(p => { mon(p.datum).kosten += posWerte(p).ek; });
+  alle('dokumente').filter(d => d.art === 'abrechnung' && d.status !== 'entwurf' && (d.datum || '').startsWith(jahr)).forEach(d => { mon(d.datum).abgerechnet += +d.netto || 0; });
+  alle('zahlungen').filter(z => (z.datum || '').startsWith(jahr)).forEach(z => { mon(z.datum).eingang += +z.betrag || 0; });
+  const sum = k => monate.reduce((s, x) => s + x[k], 0);
+  const maxStd = Math.max(1, ...monate.map(x => x.std));
+  const projekte = alle('projekte').map(p => ({ p, z: projektZahlen(p.id) }))
+    .filter(({ p, z }) => z.ist.std || z.soll.vk || z.abgerechnetNetto || (p.beginn || '').startsWith(jahr))
+    .sort((a, b) => (b.p.nr || '').localeCompare(a.p.nr || ''));
+  const offen = alle('projekte').map(p => ({ p, z: projektZahlen(p.id) })).filter(x => x.z.offen > 0.005);
+  let html = `<div class="chips">${[...jahre].sort().reverse().map(j => `<a class="chip${j === jahr ? ' aktiv' : ''}" href="#/auswertung/${j}">${j}</a>`).join('')}</div>
+    <div class="raster" style="margin-bottom:12px"><div class="kennzahl"><span>Stunden ${jahr}</span><b>${zahl(sum('std'))}</b></div><div class="kennzahl"><span>Abgerechnet netto</span><b>${eur(sum('abgerechnet'))}</b></div>
+    <div class="kennzahl"><span>Zahlungseingang</span><b>${eur(sum('eingang'))}</b></div><div class="kennzahl"><span>Kosten (EK)</span><b>${eur(sum('kosten'))}</b></div></div>
+    <div class="karte"><h3>Monate</h3><div class="tabellenrahmen"><table class="tabelle"><tr><th>Monat</th><th>Stunden</th><th></th><th class="z">Kosten</th><th class="z">Abgerechnet</th><th class="z">Eingang</th></tr>
+    ${monate.map(x => `<tr><td>${MONATE[+x.m.slice(5) - 1].slice(0, 3)}</td><td class="z">${x.std ? zahl(x.std) : ''}</td><td style="width:22%"><div class="balken"><i style="width:${x.std / maxStd * 100}%"></i></div></td><td class="z">${x.kosten ? eur(x.kosten) : ''}</td><td class="z">${x.abgerechnet ? eur(x.abgerechnet) : ''}</td><td class="z">${x.eingang ? eur(x.eingang) : ''}</td></tr>`).join('')}
+    <tr class="summe"><td>Summe</td><td class="z">${zahl(sum('std'))}</td><td></td><td class="z">${eur(sum('kosten'))}</td><td class="z">${eur(sum('abgerechnet'))}</td><td class="z">${eur(sum('eingang'))}</td></tr></table></div></div>
+    <div class="karte"><h3>Projekte: Soll/Ist und Gewinn</h3>${projekte.length ? `<div class="tabellenrahmen"><table class="tabelle"><tr><th>Projekt</th><th class="z">Std. Soll</th><th class="z">Std. Ist</th><th class="z">Abw.</th><th class="z">Erlös</th><th class="z">Gewinn</th><th class="z">€/Std.</th></tr>
+    ${projekte.map(({ p, z }) => { const a = abweichung(z.soll.std, z.ist.std); return `<tr class="klickbar" data-a="geh" data-h="#/projekt/${p.id}"><td>${esc(p.name)}<div class="leise klein">${esc(p.nr || '')} · ${statusText(p.status)}</div></td><td class="z">${zahl(z.soll.std)}</td><td class="z">${zahl(z.ist.std)}</td><td class="z ${a.klasse}">${a.text}</td><td class="z">${eur(z.erloes)}</td><td class="z ${z.gewinn < 0 ? 'ampel-schlecht' : ''}">${eur(z.gewinn)}</td><td class="z">${z.stundenlohn === null ? '–' : eur(z.stundenlohn)}</td></tr>`; }).join('')}
+    </table></div><p class="leise klein" style="margin:8px 0 0">Erlös: abgerechnet, sonst Angebot (Festpreis) bzw. erfasster Aufwand. Gewinn = Erlös − Material − Fremdleistungen − eigene Fahrtkosten. €/Std. = Gewinn ÷ Ist-Stunden.</p>` : leer('Noch keine Projektdaten')}</div>
+    <div class="karte"><h3>Offene Beträge</h3>${offen.length ? `<table class="tabelle"><tr><th>Projekt</th><th class="z">Abgerechnet</th><th class="z">Bezahlt</th><th class="z">Offen</th></tr>
+    ${offen.map(({ p, z }) => `<tr class="klickbar" data-a="geh" data-h="#/projekt/${p.id}"><td>${esc(p.name)}</td><td class="z">${eur(z.abgerechnetBrutto)}</td><td class="z">${eur(z.bezahlt)}</td><td class="z fett">${eur(z.offen)}</td></tr>`).join('')}
+    <tr class="summe"><td>Summe</td><td></td><td></td><td class="z">${eur(offen.reduce((s, x) => s + x.z.offen, 0))}</td></tr></table>` : leer('Keine offenen Beträge')}</div>`;
+  return rahmen('Auswertung', html, { zurueck: true });
+};
+
+/* ===================== Papierkorb ===================== */
+SEITEN.papierkorb = () => {
+  const namen = { projekte: 'Projekt', kunden: 'Kunde', positionen: 'Position', zeiten: 'Zeit', doku: 'Doku', aufgaben: 'Aufgabe', artikel: 'Artikel', dokumente: 'Dokument', zahlungen: 'Zahlung', lohnarten: 'Lohnart', fotos: 'Foto' };
+  const liste = [];
+  Object.keys(namen).forEach(t => D[t].forEach(z => { if (z.geloescht) liste.push({ t, z }); }));
+  liste.sort((a, b) => (b.z.geaendert || '').localeCompare(a.z.geaendert || ''));
+  const text = ({ t, z }) => z.name || z.bezeichnung || z.titel || z.taetigkeit || z.nr || z.beschreibung || (z.datum ? datumDE(z.datum) : '') || '–';
+  const html = liste.length ? `<div class="liste">${liste.slice(0, 200).map(x => `<div class="zeile">${x.t === 'fotos' ? `<img src="${esc(x.z.thumb)}" style="width:44px;height:44px;object-fit:cover;border-radius:8px">` : ''}<div class="mitte"><div class="titel">${esc(text(x))}</div><div class="unter">${namen[x.t]}${x.z.projektId ? ' · ' + esc(projektName(x.z.projektId)) : ''} · gelöscht ${datumDE((x.z.geaendert || '').slice(0, 10))}</div></div><button class="knopf klein" data-a="wiederher" data-t="${x.t}" data-id="${x.z.id}">Wiederherstellen</button></div>`).join('')}</div>`
+    : `<div class="liste">${leer('Der Papierkorb ist leer')}</div>`;
+  return rahmen('Papierkorb', html, { zurueck: true });
+};
+AKTION.wiederher = async el => { await wiederherstellen(el.dataset.t, el.dataset.id); toast('Wiederhergestellt'); zeichnen(); };
+
+/* ===================== Einstellungen ===================== */
+SEITEN.einstellungen = () => {
+  const w = {};
+  Object.keys(STANDARD).forEach(k => { w[k] = E(k); });
+  ['aufschlag', 'verschnitt', 'kmSatz', 'kmKosten', 'steuersatz', 'zahlungsziel'].forEach(k => { w[k] = num(w[k]); });
+  const b = ls.getJ('bs_benutzer');
+  const abschnitt = (titel, id, felder, zusatz = '') => `<div class="karte" data-abschnitt="${id}"><h3>${titel}</h3>${formular(felder, w)}${zusatz}<div class="knopfreihe ende" style="margin-top:12px"><button class="knopf haupt" data-a="einstSpeichern" data-id="${id}">Speichern</button></div></div>`;
+  const he = ls.get('bs_hell', 'dunkel');
+  let html = `<div class="karte"><h3>Erscheinungsbild <span class="leise klein">auf diesem Gerät</span></h3>
+    <div class="feldtitel" style="margin-bottom:6px">Helligkeit</div><div class="chips" style="flex-wrap:wrap">${HELLIGKEIT.map(([k, t]) => `<button class="chip${he === k ? ' aktiv' : ''}" data-a="themeWahl" data-h="${k}">${t}</button>`).join('')}</div></div>`;
+  const bp = hol('fotos', 'briefpapier');
+  html += `<div class="karte"><h3>Logo und Briefpapier</h3>
+    <div class="feldtitel" style="margin-bottom:6px">Logo (für Kopfzeile und Dokumente)</div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${E('logo') ? `<img src="${esc(E('logo'))}" alt="" style="max-height:56px;max-width:200px;background:#fff;border-radius:8px;padding:6px">` : '<span class="leise klein">Noch kein Logo</span>'}
+    <button class="knopf klein" data-a="logoHoch">${E('logo') ? 'Logo ersetzen' : 'Logo hochladen'}</button>${E('logo') ? '<button class="knopf klein gefahr" data-a="logoWeg">Entfernen</button>' : ''}</div>
+    <p class="leise klein">PNG mit transparentem Hintergrund oder SVG eignet sich am besten. Das App-Symbol auf dem Startbildschirm ist eine eigene Datei im Repository – die erzeuge ich aus deinem Logo, wenn du es mir schickst.</p>
+    <div class="feldtitel" style="margin:14px 0 6px">Briefpapier (erste Seite von Angebot und Abrechnung)</div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${bp ? `<img src="${esc(bp.thumb)}" alt="" style="height:90px;border:1px solid var(--rand);border-radius:4px;background:#fff">` : '<span class="leise klein">Kein Briefpapier – es wird der eingebaute Briefkopf verwendet</span>'}
+    <button class="knopf klein" data-a="bpHoch">${bp ? 'Briefpapier ersetzen' : 'Briefpapier hochladen'}</button>${bp ? '<button class="knopf klein gefahr" data-a="bpWeg">Entfernen</button>' : ''}</div>
+    <p class="leise klein">Als Bild im A4-Hochformat (PNG oder JPG, z. B. aus Word/PDF als Bild exportiert, etwa 1650 × 2340 Pixel). Ränder unten in Millimetern: wo der Text auf dem Briefpapier anfangen und aufhören soll.</p>
+    ${formular([
+      { n: 'bpOben', l: 'Textbeginn von oben (mm)', t: 'zahl', halb: true }, { n: 'bpUnten', l: 'Freiraum unten (mm)', t: 'zahl', halb: true },
+      { n: 'bpLinks', l: 'Rand links (mm)', t: 'zahl', halb: true }, { n: 'bpRechts', l: 'Rand rechts (mm)', t: 'zahl', halb: true },
+      { n: 'bpKopf', l: 'Eingebauten Briefkopf und Fußzeile trotzdem drucken', t: 'check' }
+    ], { bpOben: En('bpOben'), bpUnten: En('bpUnten'), bpLinks: En('bpLinks'), bpRechts: En('bpRechts'), bpKopf: E('bpKopf') === 'ja' })}
+    <div class="knopfreihe ende" style="margin-top:12px"><button class="knopf haupt" data-a="bpSpeichern">Speichern</button></div></div>`;
+  html += abschnitt('Briefkopf', 'brief', [
+    { n: 'firma', l: 'Firma / Name im Briefkopf' }, { n: 'inhaber', l: 'Inhaber' },
+    { n: 'strasse', l: 'Straße', halb: true }, { n: 'ort', l: 'PLZ und Ort', halb: true },
+    { n: 'telefon', l: 'Telefon', halb: true }, { n: 'email', l: 'Mail', halb: true }, { n: 'web', l: 'Internet' },
+    { n: 'bank', l: 'Bank', halb: true }, { n: 'iban', l: 'IBAN', halb: true }, { n: 'bic', l: 'BIC', halb: true }, { n: 'steuernr', l: 'Steuernummer / USt-IdNr.', halb: true }
+  ]);
+  html += abschnitt('Standardwerte', 'standard', [
+    { n: 'aufschlag', l: 'Materialaufschlag %', t: 'zahl', halb: true }, { n: 'verschnitt', l: 'Verschnitt %', t: 'zahl', halb: true },
+    { n: 'kmSatz', l: 'km-Satz Kunde €', t: 'zahl', halb: true }, { n: 'kmKosten', l: 'Eigene Kosten je km €', t: 'zahl', halb: true },
+    { n: 'zahlungsziel', l: 'Zahlungsziel (Tage)', t: 'zahl', halb: true },
+    { n: 'standardLohnart', l: 'Standard-Lohnart', t: 'select', o: optionen(lohnarten().map(l => [l.id, l.name + ' · ' + eur(l.satz)]), w.standardLohnart), halb: true },
+    { n: 'gewerke', l: 'Gewerke / Gruppen (eine je Zeile, Reihenfolge = Reihenfolge im Angebot)', t: 'textarea' },
+    { n: 'einheiten', l: 'Einheiten (eine je Zeile)', t: 'textarea' }
+  ]);
+  html += abschnitt('Texte und Nummern', 'texte', [
+    { n: 'angebotEinleitung', l: 'Angebot: Einleitung', t: 'textarea' }, { n: 'angebotSchluss', l: 'Angebot: Schluss', t: 'textarea' },
+    { n: 'abrechnungEinleitung', l: 'Abrechnung: Einleitung', t: 'textarea' }, { n: 'abrechnungSchluss', l: 'Abrechnung: Schluss ({ZIEL} = Zahlungsziel)', t: 'textarea' },
+    { n: 'nrProjekt', l: 'Projektnummern', halb: true, h: '{JJJJ} = Jahr, {NNN} = laufende Nummer' }, { n: 'nrAngebot', l: 'Angebotsnummern', halb: true },
+    { n: 'nrAbrechnung', l: 'Abrechnungsnummern', halb: true }
+  ]);
+  html += abschnitt('Umsatzsteuer', 'steuer', [
+    { n: 'steuermodus', l: 'Steuermodus', t: 'select', o: optionen([['intern', 'Interne Aufstellung (ohne Umsatzsteuer)'], ['klein', 'Kleinunternehmer nach § 19 UStG'], ['regel', 'Regelbesteuerung mit Umsatzsteuer']], w.steuermodus) },
+    { n: 'steuersatz', l: 'Steuersatz %', t: 'zahl', halb: true }
+  ], '<p class="leise klein">„Intern“ erzeugt eine Kostenaufstellung, keine Rechnung. Die anderen Modi erst nach Klärung mit Steuerberater oder Finanzamt nutzen – Rechnungen brauchen die Pflichtangaben nach § 14 UStG und eine unveränderte Aufbewahrung. Bereits erstellte Dokumente behalten ihren Modus.</p>');
+  html += `<div class="karte"><h3>Konto und Sicherheit</h3>
+    ${modus() === 'server' ? `<p class="leise" style="margin-top:0">Angemeldet als <b>${esc(b?.mail || '')}</b>${b?.rolle ? ' (' + esc(b.rolle) + ')' : ''}</p>` : '<p class="leise" style="margin-top:0">Die App läuft nur auf diesem Gerät. Für Abgleich zwischen Handy und PC das Backend verbinden.</p>'}
+    <div class="knopfreihe">
+      <button class="knopf klein" data-a="pinAendern">${ls.get('bs_pin') ? 'PIN ändern' : 'PIN festlegen'}</button>
+      ${modus() === 'server' ? '<button class="knopf klein" data-a="passwortAendern">Passwort ändern</button><button class="knopf klein" data-a="abmelden">Abmelden</button><button class="knopf klein gefahr" data-a="abmeldenUeberall">Auf allen Geräten abmelden</button>' : '<button class="knopf klein haupt" data-a="serverVerbinden">Backend verbinden</button>'}
+    </div></div>`;
+  html += `<div class="karte"><h3>Abgleich und Sicherung</h3>
+    <p class="leise" style="margin-top:0">${modus() === 'server' ? `Backend: <span style="word-break:break-all">${esc(ls.get('bs_url') || '')}</span><br>${SY.zuletzt ? 'Zuletzt abgeglichen ' + zeitHM(SY.zuletzt) + ' Uhr' : 'Noch nicht abgeglichen'} · ${anzahlOffen()} Änderung(en) offen${SY.fehler ? '<br><span class="ampel-schlecht">' + esc(SY.fehler) + '</span>' : ''}` : 'Kein Backend verbunden.'}</p>
+    <div class="knopfreihe">${modus() === 'server' ? '<button class="knopf klein" data-a="syncJetzt">Jetzt abgleichen</button><button class="knopf klein" data-a="allesNeuLaden">Alles neu vom Server laden</button>' : ''}
+    <button class="knopf klein" data-a="export">Daten exportieren</button><button class="knopf klein" data-a="import">Daten importieren</button></div></div>
+    <p class="leise klein" style="text-align:center">Baustellen ${APP_VERSION}</p>`;
+  return rahmen('Einstellungen', html, { zurueck: true });
+};
+AKTION.einstSpeichern = async el => {
+  const box = el.closest('[data-abschnitt]');
+  const v = formWerte(box);
+  for (const [k, wert] of Object.entries(v)) await setzeE(k, typeof wert === 'number' ? zahlFeld(wert) : wert);
+  toast('Einstellungen gespeichert');
+  zeichnen();
+};
+AKTION.logoHoch = async () => {
+  const [datei] = await fotoWaehlen(false);
+  if (!datei) return;
+  let url;
+  if (datei.type === 'image/svg+xml') {
+    url = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(await datei.text())));
+  } else {
+    const img = await bildLaden(datei);
+    for (const max of [600, 450, 320, 240]) {
+      const f = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * f); c.height = Math.round(img.naturalHeight * f);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      url = c.toDataURL('image/webp', 0.9);
+      if (!url.startsWith('data:image/webp')) url = c.toDataURL('image/png');
+      if (url.length < 45000) break;
+    }
+  }
+  if (url.length > 48000) { toast('Das Logo ist zu groß – bitte eine kleinere Datei verwenden.'); return; }
+  await setzeE('logo', url); toast('Logo gespeichert'); zeichnen();
+};
+AKTION.logoWeg = async () => { if (confirm('Logo entfernen?')) { await setzeE('logo', ''); zeichnen(); } };
+AKTION.bpHoch = async () => {
+  const [datei] = await fotoWaehlen(false);
+  if (!datei) return;
+  toast('Briefpapier wird verarbeitet …');
+  await idb.del('fotos', 'briefpapier');
+  await fotoAnlegen(datei, { projektId: '', bezugTyp: 'briefpapier', bezugId: 'briefpapier', beschreibung: 'Briefpapier', geloescht: false }, { id: 'briefpapier', max: 1754, qualitaet: 0.88 });
+  if (!E('bpOben')) { await setzeE('bpOben', '55'); await setzeE('bpUnten', '30'); await setzeE('bpLinks', '22'); await setzeE('bpRechts', '18'); }
+  toast('Briefpapier gespeichert'); zeichnen();
+};
+AKTION.bpWeg = async () => { if (confirm('Briefpapier entfernen? Danach wird wieder der eingebaute Briefkopf gedruckt.')) { await loesche('fotos', 'briefpapier'); await idb.del('fotos', 'briefpapier'); zeichnen(); } };
+AKTION.bpSpeichern = async el => {
+  const v = formWerte(el.closest('.karte'));
+  for (const k of ['bpOben', 'bpUnten', 'bpLinks', 'bpRechts']) await setzeE(k, zahlFeld(v[k]));
+  await setzeE('bpKopf', v.bpKopf ? 'ja' : '');
+  toast('Gespeichert'); zeichnen();
+};
+AKTION.themeWahl = el => { themeSetzen(el.dataset.h); zeichnen(); };
+AKTION.pinAendern = () => { UI.entsperrt = false; pinZeigen('neu'); };
+AKTION.serverVerbinden = () => { einrichtungZeigen(); };
+AKTION.abmelden = async () => {
+  if (anzahlOffen() && !confirm(anzahlOffen() + ' Änderung(en) sind noch nicht abgeglichen. Sie bleiben auf dem Gerät und werden nach der nächsten Anmeldung übertragen. Trotzdem abmelden?')) return;
+  try { await api('abmelden'); } catch { /* egal */ }
+  ls.set('bs_token', null); ls.set('bs_pin', null); UI.entsperrt = false;
+  anmeldungZeigen();
+};
+AKTION.abmeldenUeberall = async () => {
+  if (!confirm('Auf allen Geräten abmelden? Jedes Gerät braucht danach eine neue Anmeldung.')) return;
+  await api('abmeldenUeberall');
+  ls.set('bs_token', null); ls.set('bs_pin', null); UI.entsperrt = false;
+  anmeldungZeigen();
+};
+AKTION.passwortAendern = () => {
+  blattOeffnen({
+    titel: 'Passwort ändern',
+    html: formular([{ n: 'alt', l: 'Bisheriges Passwort', t: 'password' }, { n: 'neu', l: 'Neues Passwort (mind. 8 Zeichen)', t: 'password' }, { n: 'neu2', l: 'Neues Passwort wiederholen', t: 'password' }]) + '<p class="leise klein">Danach sind alle anderen Geräte abgemeldet.</p>',
+    knoepfe: [{ text: 'Ändern', klasse: 'haupt', tun: async bl => {
+      const v = formWerte(bl);
+      if (v.neu.length < 8) { toast('Mindestens 8 Zeichen.'); return false; }
+      if (v.neu !== v.neu2) { toast('Die neuen Passwörter stimmen nicht überein.'); return false; }
+      const j = await api('passwortAendern', { alt: v.alt, neu: v.neu, geraet: geraetName() });
+      ls.set('bs_token', j.token); toast('Passwort geändert');
+    } }]
+  });
+};
+AKTION.allesNeuLaden = async () => {
+  if (anzahlOffen()) { toast('Erst die offenen Änderungen abgleichen.'); sync(); return; }
+  if (!confirm('Alle Daten auf diesem Gerät werden durch den Stand auf dem Server ersetzt. Fortfahren?')) return;
+  await idb.leeren('zeilen'); TABELLEN.forEach(t => D[t].clear());
+  META.seit = ''; META.offen = {}; await metaSichern();
+  await sync(); await grunddatenAnlegen(); zeichnen(); toast('Neu geladen');
+};
+AKTION.export = async () => {
+  const daten = { app: 'baustellen', version: APP_VERSION, exportiert: jetztISO(), tabellen: {} };
+  TABELLEN.forEach(t => { daten.tabellen[t] = [...D[t].values()]; });
+  const blob = new Blob([JSON.stringify(daten, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'baustellen-' + heute() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  toast('Export erstellt (Fotos als Vorschaubilder enthalten, Originale liegen in Drive)', 4000);
+};
+AKTION.import = () => {
+  const i = document.createElement('input'); i.type = 'file'; i.accept = '.json,application/json';
+  i.onchange = async () => {
+    try {
+      const j = JSON.parse(await i.files[0].text());
+      if (j.app !== 'baustellen' || !j.tabellen) throw new Error('Das ist keine Sicherung der Baustellen-App.');
+      let n = 0;
+      if (!confirm('Einträge aus der Sicherung übernehmen? Vorhandene Einträge mit gleicher Kennung werden überschrieben, wenn die Sicherung neuer ist.')) return;
+      for (const t of TABELLEN) for (const roh of j.tabellen[t] || []) {
+        const z = normalisieren(roh); const alt = D[t].get(z.id);
+        if (alt && (alt.geaendert || '') >= (z.geaendert || '')) continue;
+        D[t].set(z.id, z); await idb.put('zeilen', { k: t + '|' + z.id, t, z }); META.offen[t + '|' + z.id] = true; n++;
+      }
+      await metaSichern(); syncBald(); toast(n + ' Einträge übernommen'); zeichnen();
+    } catch (e) { toast(e.message, 4000); }
+  };
+  i.click();
+};
+
+/* =========================================================================
+   Angebote und Abrechnungen
+   ========================================================================= */
+
+const DOK_ART = { angebot: 'Angebot', abrechnung: 'Abrechnung' };
+const DARSTELLUNG = [['einzeln', 'Einzelpositionen mit Preisen'], ['gruppen', 'Nach Gewerken mit Zwischensummen'], ['summe', 'Positionen ohne Preise, nur Endsumme']];
+const dokTitel = d => d.art === 'angebot' ? 'Angebot' : ((d.steuermodus || 'intern') === 'intern' ? 'Kostenaufstellung' : 'Rechnung');
+
+PROJEKT_TAB.dokumente = p => {
+  const liste = vonProjekt('dokumente', p.id).sort((a, b) => (b.datum || '').localeCompare(a.datum || '') || (b.erstellt || '').localeCompare(a.erstellt || ''));
+  const z = projektZahlen(p.id);
+  return `<div class="knopfreihe" style="margin-bottom:12px"><button class="knopf klein" data-a="dokNeu" data-art="angebot" data-pid="${p.id}">+ Angebot</button><button class="knopf klein" data-a="dokNeu" data-art="abrechnung" data-pid="${p.id}">+ Abrechnung</button></div>
+    <p class="leise klein" style="margin:0 2px 12px">Abrechnung bei diesem Projekt: <b>${p.art === 'aufwand' ? 'nach Aufwand' : 'Festpreis nach Angebot'}</b>${p.art === 'aufwand' && z.ist.offenStd ? ` · ${zahl(z.ist.offenStd)} Std. noch nicht abgerechnet` : ''}</p>
+    ${liste.length ? `<div class="liste">${liste.map(d => `<div class="zeile" data-a="geh" data-h="#/dok/${d.id}"><div class="mitte"><div class="titel">${esc(dokTitel(d))} ${esc(d.nr || '')}</div><div class="unter">${datumDE(d.datum)}${d.titel ? ' · ' + esc(d.titel) : ''}</div></div><div class="wert">${eur(d.status === 'entwurf' ? dokSummen(d).brutto : d.brutto)}<small>${badge(d.status, { entwurf: 'Entwurf', erstellt: 'erstellt', angenommen: 'angenommen', abgelehnt: 'abgelehnt' }[d.status] || d.status)}</small></div></div>`).join('')}</div>`
+      : `<div class="liste">${leer('Noch keine Dokumente', 'Ein Angebot entsteht aus der Kalkulation, eine Abrechnung aus Angebot oder erfasstem Aufwand.')}</div>`}`;
+};
+
+/* ---------- Anlegen ---------- */
+function zeileAusPosition(p) {
+  const w = posWerte(p);
+  return { id: neueId(), gruppe: p.gruppe || '', typ: p.typ, text: p.bezeichnung || TYPEN[p.typ], menge: +p.menge || 0, einheit: p.einheit || (p.typ === 'lohn' ? 'Std.' : ''), ep: w.ep };
+}
+function sollZeilen(pid) {
+  return gruppenSortiert(vonProjekt('positionen', pid).filter(x => x.bereich !== 'ist')).flatMap(([, l]) => l.map(zeileAusPosition));
+}
+
+AKTION.dokNeu = async el => {
+  const pid = el.dataset.pid, art = el.dataset.art;
+  const p = hol('projekte', pid);
+  const entwurf = vonProjekt('dokumente', pid).find(d => d.art === art && d.status === 'entwurf');
+  if (entwurf) { toast('Es gibt bereits einen Entwurf – der wird geöffnet.'); geheZu('#/dok/' + entwurf.id); return; }
+  const d = {
+    projektId: pid, art, nr: '', datum: heute(), titel: p.name, status: 'entwurf',
+    darstellung: 'einzeln', steuermodus: E('steuermodus'), steuersatz: En('steuersatz'),
+    einleitung: E(art === 'angebot' ? 'angebotEinleitung' : 'abrechnungEinleitung'),
+    schluss: E(art === 'angebot' ? 'angebotSchluss' : 'abrechnungSchluss'),
+    nachweis: art === 'abrechnung' && p.art === 'aufwand',
+    daten: { zeilen: [], nachweis: [], quellen: { zeiten: [], positionen: [] }, abzuege: [] }
+  };
+  if (art === 'angebot') {
+    d.daten.zeilen = sollZeilen(pid);
+    if (!d.daten.zeilen.length) { toast('Erst in der Kalkulation Positionen anlegen.'); geheZu('#/projekt/' + pid + '/kalk'); return; }
+    d.darstellung = gruppenSortiert(vonProjekt('positionen', pid).filter(x => x.bereich !== 'ist')).filter(([g]) => g).length > 1 ? 'gruppen' : 'einzeln';
+  } else if (p.art === 'aufwand') {
+    aufwandUebernehmen(d, pid);
+    if (!d.daten.zeilen.length) { toast('Es gibt keine erfassten, noch nicht abgerechneten Zeiten oder Kosten.'); return; }
+    d.darstellung = 'gruppen';
+  } else {
+    const ang = angebotFuer(pid);
+    if (ang) { d.daten.zeilen = (ang.daten?.zeilen || []).map(z => ({ ...z, id: neueId() })); d.darstellung = ang.darstellung; d.titel = ang.titel; d.einleitung = 'für die ausgeführten Arbeiten laut Angebot ' + (ang.nr || '') + ' vom ' + datumDE(ang.datum) + ' erlaube ich mir, wie folgt abzurechnen:'; }
+    else d.daten.zeilen = sollZeilen(pid);
+    if (!d.daten.zeilen.length) { toast('Es gibt weder ein Angebot noch eine Kalkulation.'); return; }
+  }
+  if (art === 'abrechnung') {
+    d.daten.abzuege = vonProjekt('zahlungen', pid).filter(z => !z.dokumentId && z.art !== 'zahlung')
+      .sort((a, b) => (a.datum || '').localeCompare(b.datum || '')).map(z => ({ id: z.id, datum: z.datum, art: z.art, betrag: z.betrag, an: true }));
+  }
+  await speichere('dokumente', d);
+  geheZu('#/dok/' + d.id);
+};
+
+function aufwandUebernehmen(d, pid) {
+  const zeiten = vonProjekt('zeiten', pid).filter(z => z.abrechenbar && !z.abgerechnetIn).sort((a, b) => (a.datum + (a.von || '')).localeCompare(b.datum + (b.von || '')));
+  const gruppen = {};
+  zeiten.forEach(z => { const k = (z.lohnartId || '') + '|' + (+z.satz || 0); (gruppen[k] = gruppen[k] || []).push(z); });
+  Object.values(gruppen).forEach(l => {
+    const la = hol('lohnarten', l[0].lohnartId);
+    const von = l[0].datum, bis = l[l.length - 1].datum;
+    d.daten.zeilen.push({ id: neueId(), gruppe: 'Arbeitszeit', typ: 'lohn', text: 'Arbeitszeit ' + (la ? la.name : '') + (von ? ' (' + (von === bis ? datumDE(von) : datumDE(von) + ' – ' + datumDE(bis)) + ')' : ''), menge: Math.round(l.reduce((s, z) => s + (+z.stunden || 0), 0) * 100) / 100, einheit: 'Std.', ep: +l[0].satz || 0 });
+  });
+  d.daten.nachweis = zeiten.map(z => ({ datum: z.datum, von: z.von, bis: z.bis, pause: z.pause, stunden: z.stunden, text: z.taetigkeit, person: z.person }));
+  d.daten.quellen.zeiten = zeiten.map(z => z.id);
+  const pos = vonProjekt('positionen', pid).filter(x => x.bereich === 'ist' && !x.abgerechnetIn).sort((a, b) => (a.datum || '').localeCompare(b.datum || ''));
+  const namen = { material: 'Material', fremd: 'Fremdleistungen', pauschal: 'Sonstiges' };
+  pos.filter(x => x.typ !== 'fahrt').forEach(x => d.daten.zeilen.push(Object.assign(zeileAusPosition(x), { gruppe: namen[x.typ] || 'Sonstiges' })));
+  const fahrten = {};
+  pos.filter(x => x.typ === 'fahrt').forEach(x => { const k = String(+x.vk || 0); (fahrten[k] = fahrten[k] || []).push(x); });
+  Object.values(fahrten).forEach(l => d.daten.zeilen.push({ id: neueId(), gruppe: 'Fahrtkosten', typ: 'fahrt', text: 'Fahrtkosten (' + l.length + (l.length === 1 ? ' Eintrag' : ' Einträge') + ')', menge: Math.round(l.reduce((s, x) => s + (+x.menge || 0), 0) * 10) / 10, einheit: 'km', ep: +l[0].vk || 0 }));
+  d.daten.quellen.positionen = pos.map(x => x.id);
+}
+
+/* ---------- Summen ---------- */
+function dokSummen(d) {
+  const zeilen = d.daten?.zeilen || [];
+  const netto = rund(zeilen.reduce((s, z) => s + rund((+z.menge || 0) * (+z.ep || 0)), 0));
+  const regel = (d.steuermodus || 'intern') === 'regel';
+  const steuer = regel ? rund(netto * (+d.steuersatz || 0) / 100) : 0;
+  const brutto = rund(netto + steuer);
+  const abzug = d.art === 'abrechnung' ? rund((d.daten?.abzuege || []).filter(a => a.an).reduce((s, a) => s + (+a.betrag || 0), 0)) : 0;
+  return { netto, steuer, brutto, abzug, zahlbar: rund(brutto - abzug) };
+}
+
+/* ---------- Ansicht ---------- */
+SEITEN.dok = r => {
+  const d = hol('dokumente', r.a);
+  if (!d) return rahmen('Dokument', `<div class="liste">${leer('Dokument nicht gefunden')}</div>`, { zurueck: true });
+  const p = hol('projekte', d.projektId) || {};
+  const entwurf = d.status === 'entwurf';
+  let leiste = `<div class="dokleiste"><a class="knopf klein" href="#/projekt/${p.id}/dokumente">‹ Projekt</a><button class="knopf klein" data-a="drucken">🖨 Drucken / PDF</button>`;
+  if (entwurf) leiste += `<button class="knopf klein haupt" data-a="dokFest" data-id="${d.id}">Festschreiben</button><button class="knopf klein gefahr" data-a="dokWeg" data-id="${d.id}">Verwerfen</button>`;
+  else {
+    if (d.art === 'angebot') leiste += `<select data-c="dokStatus" data-id="${d.id}" style="padding:6px 10px;border-radius:10px;border:1px solid var(--rand);background:var(--fl)">${optionen([['erstellt', 'Status: offen'], ['angenommen', 'angenommen'], ['abgelehnt', 'abgelehnt']], d.status)}</select>`;
+    leiste += `<button class="knopf klein" data-a="dokKopie" data-id="${d.id}">Als Entwurf kopieren</button><button class="knopf klein gefahr" data-a="dokWeg" data-id="${d.id}">Löschen</button>`;
+  }
+  leiste += '</div>';
+  let html = leiste;
+  if (entwurf) html += dokEditor(d);
+  html += papierHtml(d);
+  return rahmen((entwurf ? 'Entwurf: ' : '') + dokTitel(d) + (d.nr ? ' ' + d.nr : ''), html, { zurueck: true });
+};
+
+function dokEditor(d) {
+  const s = dokSummen(d);
+  const zeilen = d.daten.zeilen;
+  const gruppenListe = [...new Set([...gewerke(), ...zeilen.map(z => z.gruppe).filter(Boolean)])];
+  return `<div class="karte nicht-drucken"><h3>Kopf und Texte</h3><div class="formular">
+      <div class="feld halb"><label>Datum</label><input type="date" data-c="dokFeld" data-id="${d.id}" name="datum" value="${esc(d.datum)}"></div>
+      <div class="feld halb"><label>Darstellung</label><select data-c="dokFeld" data-id="${d.id}" name="darstellung">${optionen(DARSTELLUNG, d.darstellung)}</select></div>
+      <div class="feld"><label>Betreff</label><input data-c="dokFeld" data-id="${d.id}" name="titel" value="${esc(d.titel)}"></div>
+      <div class="feld"><label>Einleitung</label><textarea data-c="dokFeld" data-id="${d.id}" name="einleitung" style="min-height:60px">${esc(d.einleitung)}</textarea></div>
+      <div class="feld"><label>Schluss</label><textarea data-c="dokFeld" data-id="${d.id}" name="schluss" style="min-height:60px">${esc(d.schluss)}</textarea></div>
+      ${d.art === 'abrechnung' && d.daten.nachweis?.length ? `<div class="feld check"><input type="checkbox" id="dokNw" data-c="dokFeld" data-id="${d.id}" name="nachweis"${d.nachweis ? ' checked' : ''}><label for="dokNw">Stundennachweis anhängen (${d.daten.nachweis.length} Einträge)</label></div>` : ''}
+    </div></div>
+    <div class="karte nicht-drucken"><h3>Positionen <span class="leise klein">${eur(s.netto)}</span></h3>
+      <div class="tabellenrahmen"><table class="tabelle zeileneditor"><tr><th style="min-width:180px">Text</th><th>Gruppe</th><th class="z" style="width:80px">Menge</th><th style="width:80px">Einheit</th><th class="z" style="width:96px">Einzelpreis</th><th class="z">Gesamt</th><th></th></tr>
+      ${zeilen.map((z, i) => `<tr><td><textarea rows="1" data-c="dokZeile" data-id="${d.id}" data-i="${i}" data-k="text" style="width:100%;padding:7px 6px;border:1px solid var(--rand);border-radius:8px;background:var(--fl);min-height:38px;resize:vertical">${esc(z.text)}</textarea></td>
+        <td><select data-c="dokZeile" data-id="${d.id}" data-i="${i}" data-k="gruppe">${optionen([['', '–'], ...gruppenListe], z.gruppe)}</select></td>
+        <td><input inputmode="decimal" data-c="dokZeile" data-id="${d.id}" data-i="${i}" data-k="menge" value="${esc(zahlFeld(z.menge))}" style="text-align:right"></td>
+        <td><input data-c="dokZeile" data-id="${d.id}" data-i="${i}" data-k="einheit" value="${esc(z.einheit)}"></td>
+        <td><input inputmode="decimal" data-c="dokZeile" data-id="${d.id}" data-i="${i}" data-k="ep" value="${esc(zahlFeld(z.ep))}" style="text-align:right"></td>
+        <td class="z">${eur(rund((+z.menge || 0) * (+z.ep || 0)))}</td>
+        <td style="white-space:nowrap"><button class="knopf klein" data-a="dokZeileHoch" data-id="${d.id}" data-i="${i}" title="nach oben"${i ? '' : ' disabled'}>↑</button> <button class="knopf klein" data-a="dokZeileWeg" data-id="${d.id}" data-i="${i}" title="entfernen">✕</button></td></tr>`).join('')}
+      </table></div>
+      <div class="knopfreihe" style="margin-top:10px"><button class="knopf klein" data-a="dokZeileNeu" data-id="${d.id}">+ Zeile</button>${d.art === 'angebot' ? `<button class="knopf klein" data-a="dokNeuAusKalk" data-id="${d.id}">Neu aus Kalkulation übernehmen</button>` : ''}</div>
+      ${d.art === 'abrechnung' && d.daten.abzuege?.length ? `<h3 style="margin-top:16px">Abzuziehende Zahlungen</h3>${d.daten.abzuege.map((a, i) => `<div class="feld check"><input type="checkbox" id="abz${i}" data-c="dokAbzug" data-id="${d.id}" data-i="${i}"${a.an ? ' checked' : ''}><label for="abz${i}">${esc(ZAHLUNG_ARTEN[a.art] || 'Zahlung')} vom ${datumDE(a.datum)}: ${eur(a.betrag)}</label></div>`).join('')}` : ''}
+      <p class="leise klein" style="margin:12px 0 0">Änderungen hier betreffen nur dieses Dokument, nicht die Kalkulation. Beim Festschreiben bekommt es eine Nummer und ändert sich danach nicht mehr${d.art === 'abrechnung' && (d.daten.quellen?.zeiten?.length || d.daten.quellen?.positionen?.length) ? '; die übernommenen Zeiten und Kosten werden als abgerechnet markiert' : ''}.</p>
+    </div>`;
+}
+
+async function dokAendern(id, fn) {
+  const d = hol('dokumente', id);
+  if (!d || d.status !== 'entwurf') return;
+  d.daten = JSON.parse(JSON.stringify(d.daten || {}));
+  fn(d);
+  Object.assign(d, dokSummen(d));
+  await speichere('dokumente', d);
+  zeichnen();
+}
+AKTION.dokFeld = el => dokAendern(el.dataset.id, d => { d[el.name] = el.type === 'checkbox' ? el.checked : el.value; });
+AKTION.dokZeile = el => dokAendern(el.dataset.id, d => { const z = d.daten.zeilen[+el.dataset.i]; const k = el.dataset.k; z[k] = (k === 'menge' || k === 'ep') ? num(el.value) : el.value; });
+AKTION.dokZeileNeu = el => dokAendern(el.dataset.id, d => { d.daten.zeilen.push({ id: neueId(), gruppe: '', typ: 'pauschal', text: '', menge: 1, einheit: 'psch.', ep: 0 }); });
+AKTION.dokZeileWeg = el => dokAendern(el.dataset.id, d => { d.daten.zeilen.splice(+el.dataset.i, 1); });
+AKTION.dokZeileHoch = el => dokAendern(el.dataset.id, d => { const i = +el.dataset.i; if (i > 0) { const z = d.daten.zeilen; [z[i - 1], z[i]] = [z[i], z[i - 1]]; } });
+AKTION.dokAbzug = el => dokAendern(el.dataset.id, d => { d.daten.abzuege[+el.dataset.i].an = el.checked; });
+AKTION.dokNeuAusKalk = el => { if (confirm('Alle Positionen dieses Entwurfs durch die aktuelle Kalkulation ersetzen?')) dokAendern(el.dataset.id, d => { d.daten.zeilen = sollZeilen(d.projektId); }); };
+AKTION.drucken = () => window.print();
+AKTION.dokStatus = async el => {
+  const d = hol('dokumente', el.dataset.id); d.status = el.value; await speichere('dokumente', d);
+  const p = hol('projekte', d.projektId);
+  if (d.status === 'angenommen' && p && ['anfrage', 'angebot'].includes(p.status)) { p.status = 'beauftragt'; await speichere('projekte', p); toast('Projekt ist jetzt „Beauftragt“'); }
+  zeichnen();
+};
+
+AKTION.dokFest = async el => {
+  const d = hol('dokumente', el.dataset.id);
+  if (!d.daten.zeilen.length) { toast('Das Dokument hat keine Positionen.'); return; }
+  if (!confirm(dokTitel(d) + ' festschreiben? Danach bekommt es eine Nummer und lässt sich nicht mehr ändern.')) return;
+  const p = hol('projekte', d.projektId) || {};
+  const k = hol('kunden', p.kundeId) || {};
+  d.daten = JSON.parse(JSON.stringify(d.daten));
+  d.nr = naechsteNr(d.art === 'angebot' ? 'nrAngebot' : 'nrAbrechnung', 'dokumente', z => z.art === d.art);
+  d.daten.absender = absenderJetzt();
+  d.daten.kunde = { name: k.name || '', ansprechpartner: k.ansprechpartner || '', strasse: k.strasse || '', ort: k.ort || '' };
+  d.daten.projekt = { nr: p.nr || '', name: p.name || '', strasse: p.strasse || '', ort: p.ort || '' };
+  if (!d.nachweis) d.daten.nachweis = [];
+  Object.assign(d, dokSummen(d));
+  d.status = 'erstellt';
+  await speichere('dokumente', d);
+  if (d.art === 'abrechnung') {
+    for (const id of d.daten.quellen?.zeiten || []) { const z = hol('zeiten', id); if (z && !z.abgerechnetIn) { z.abgerechnetIn = d.id; await speichere('zeiten', z, true); } }
+    for (const id of d.daten.quellen?.positionen || []) { const z = hol('positionen', id); if (z && !z.abgerechnetIn) { z.abgerechnetIn = d.id; await speichere('positionen', z, true); } }
+    for (const a of (d.daten.abzuege || []).filter(a => a.an)) { const z = hol('zahlungen', a.id); if (z) { z.dokumentId = d.id; await speichere('zahlungen', z, true); } }
+    if (p.id && p.status !== 'bezahlt') { p.status = 'abgerechnet'; await speichere('projekte', p, true); }
+  } else if (p.id && p.status === 'anfrage') { p.status = 'angebot'; await speichere('projekte', p, true); }
+  syncBald();
+  toast(dokTitel(d) + ' ' + d.nr + ' erstellt');
+  zeichnen();
+};
+AKTION.dokWeg = async el => {
+  const d = hol('dokumente', el.dataset.id);
+  const text = d.status === 'entwurf' ? 'Entwurf verwerfen?' : dokTitel(d) + ' ' + d.nr + ' löschen? Übernommene Zeiten, Kosten und Zahlungen werden wieder freigegeben.';
+  if (!confirm(text)) return;
+  if (d.status !== 'entwurf') {
+    for (const z of alle('zeiten').filter(z => z.abgerechnetIn === d.id)) { z.abgerechnetIn = ''; await speichere('zeiten', z, true); }
+    for (const z of alle('positionen').filter(z => z.abgerechnetIn === d.id)) { z.abgerechnetIn = ''; await speichere('positionen', z, true); }
+    for (const z of alle('zahlungen').filter(z => z.dokumentId === d.id)) { z.dokumentId = ''; await speichere('zahlungen', z, true); }
+  }
+  await loesche('dokumente', d.id);
+  geheZu('#/projekt/' + d.projektId + '/dokumente');
+};
+AKTION.dokKopie = async el => {
+  const a = hol('dokumente', el.dataset.id);
+  const entwurf = vonProjekt('dokumente', a.projektId).find(d => d.art === a.art && d.status === 'entwurf');
+  if (entwurf) { toast('Es gibt bereits einen Entwurf.'); geheZu('#/dok/' + entwurf.id); return; }
+  const d = { projektId: a.projektId, art: a.art, nr: '', datum: heute(), titel: a.titel, status: 'entwurf', darstellung: a.darstellung, steuermodus: E('steuermodus'), steuersatz: En('steuersatz'), einleitung: a.einleitung, schluss: a.schluss, nachweis: false,
+    daten: { zeilen: (a.daten?.zeilen || []).map(z => ({ ...z, id: neueId() })), nachweis: [], quellen: { zeiten: [], positionen: [] }, abzuege: [] } };
+  await speichere('dokumente', d);
+  geheZu('#/dok/' + d.id);
+};
+
+function absenderJetzt() {
+  const a = {};
+  ['firma', 'inhaber', 'strasse', 'ort', 'telefon', 'email', 'web', 'bank', 'iban', 'bic', 'steuernr', 'zahlungsziel'].forEach(k => { a[k] = E(k); });
+  return a;
+}
+
+/* ---------- Papier ---------- */
+function papierHtml(d) {
+  const entwurf = d.status === 'entwurf';
+  const p = hol('projekte', d.projektId) || {};
+  const kAkt = hol('kunden', p.kundeId) || {};
+  const a = entwurf || !d.daten.absender ? absenderJetzt() : d.daten.absender;
+  const k = entwurf || !d.daten.kunde ? kAkt : d.daten.kunde;
+  const pr = entwurf || !d.daten.projekt ? p : d.daten.projekt;
+  const s = entwurf ? dokSummen(d) : d;
+  const modusD = d.steuermodus || 'intern';
+  const zeilen = d.daten.zeilen || [];
+  const mitPreis = d.darstellung !== 'summe';
+  const firma = a.firma || a.inhaber || 'Briefkopf in den Einstellungen eintragen';
+  const absZeile = [a.firma || a.inhaber, a.strasse, a.ort].filter(Boolean).join(' · ');
+  const baustelle = [pr.strasse, pr.ort].filter(Boolean).join(', ');
+  const zp = z => rund((+z.menge || 0) * (+z.ep || 0));
+  const kopfzeile = `<tr><th style="width:44px">Pos.</th><th>Bezeichnung</th><th class="z">Menge</th><th>Einheit</th>${mitPreis ? '<th class="z">Einzelpreis</th><th class="z">Gesamt</th>' : ''}</tr>`;
+  const posZ = (nr, z) => `<tr><td>${nr}</td><td style="white-space:pre-wrap">${esc(z.text)}</td><td class="z">${zahl(z.menge, 3)}</td><td>${esc(z.einheit)}</td>${mitPreis ? `<td class="z">${eur(z.ep)}</td><td class="z">${eur(zp(z))}</td>` : ''}</tr>`;
+  let tabelle = '';
+  if (d.darstellung === 'gruppen') {
+    const gruppen = [];
+    zeilen.forEach(z => { let g = gruppen.find(x => x.n === (z.gruppe || '')); if (!g) { g = { n: z.gruppe || '', l: [] }; gruppen.push(g); } g.l.push(z); });
+    tabelle = gruppen.map((g, gi) => `<tr class="gruppe"><td>${gi + 1}</td><td colspan="${mitPreis ? 5 : 3}">${esc(g.n || 'Weitere Leistungen')}</td></tr>` + g.l.map((z, i) => posZ((gi + 1) + '.' + (i + 1), z)).join('') +
+      `<tr class="zwsumme"><td></td><td colspan="4">Summe ${gi + 1} ${esc(g.n || '')}</td><td class="z">${eur(g.l.reduce((x, z) => x + zp(z), 0))}</td></tr>`).join('');
+  } else tabelle = zeilen.map((z, i) => posZ(i + 1, z)).join('');
+  const ziel = num(a.zahlungsziel) || 14;
+  const schluss = (d.schluss || '').replace(/\{ZIEL\}/g, ziel);
+  const anrede = k.ansprechpartner ? 'Guten Tag ' + k.ansprechpartner + ',' : 'Sehr geehrte Damen und Herren,';
+  let summen = '';
+  if (modusD === 'regel') summen += `<tr><td>Summe netto</td><td class="z">${eur(s.netto)}</td></tr><tr><td>zzgl. ${zahl(d.steuersatz)} % Umsatzsteuer</td><td class="z">${eur(s.steuer)}</td></tr><tr class="gesamt"><td>Gesamtbetrag</td><td class="z">${eur(s.brutto)}</td></tr>`;
+  else summen += `<tr class="gesamt"><td>Gesamtbetrag</td><td class="z">${eur(s.brutto)}</td></tr>`;
+  const abz = d.art === 'abrechnung' ? (d.daten.abzuege || []).filter(x => x.an) : [];
+  if (abz.length) summen += abz.map(x => `<tr><td>abzgl. ${esc(ZAHLUNG_ARTEN[x.art] || 'Zahlung')} vom ${datumDE(x.datum)}</td><td class="z">−${eur(x.betrag)}</td></tr>`).join('') + `<tr class="gesamt"><td>Noch zu zahlen</td><td class="z">${eur(s.zahlbar)}</td></tr>`;
+  const nachweis = d.art === 'abrechnung' && d.nachweis && (d.daten.nachweis || []).length ? `<div class="nachweis"><h2>Stundennachweis zu ${esc(dokTitel(d))} ${esc(d.nr || '')}</h2><p style="margin:0 0 8px;color:#555">${esc(pr.name || '')}${baustelle ? ' · ' + esc(baustelle) : ''}</p>
+    <table class="pos"><tr><th>Datum</th><th>Zeit</th><th>Tätigkeit</th><th class="z">Stunden</th></tr>${d.daten.nachweis.map(n => `<tr><td>${wochentag(n.datum)} ${datumDE(n.datum)}</td><td>${n.von ? esc(n.von) + '–' + esc(n.bis) + (n.pause ? ' (' + n.pause + ' Min. Pause)' : '') : ''}</td><td>${esc(n.text || '')}${n.person ? ' <span style="color:#777">· ' + esc(n.person) + '</span>' : ''}</td><td class="z">${zahl(n.stunden)}</td></tr>`).join('')}
+    <tr><td colspan="3"><b>Summe</b></td><td class="z"><b>${zahl(d.daten.nachweis.reduce((x, n) => x + (+n.stunden || 0), 0))}</b></td></tr></table></div>` : '';
+  const bp = hol('fotos', 'briefpapier');
+  const eigenerKopf = !bp || E('bpKopf') === 'ja';
+  const rand = bp ? 'padding:0' : '';
+  const bpAuf = bp ? `<table class="bp-rahmen"><thead><tr><td><div style="height:${En('bpOben') || 0}mm"></div></td></tr></thead><tfoot><tr><td><div style="height:${En('bpUnten') || 20}mm"></div></td></tr></tfoot><tbody><tr><td style="padding:0 ${En('bpRechts') || 18}mm 0 ${En('bpLinks') || 20}mm">` : '';
+  const bpZu = bp ? '</td></tr></tbody></table>' : '';
+  if (bp) UI.nachZeichnen = () => { briefpapierLaden(); druckstilSetzen(true); }; else UI.nachZeichnen = () => druckstilSetzen(false);
+  const logo = E('logo');
+  return `<div class="papier${bp ? ' mit-bp' : ''}" style="${rand}">${bp ? `<img class="briefpapier" data-bp="1" src="${esc(bp.thumb)}" alt="">` : ''}${bpAuf}
+    ${eigenerKopf ? `<div class="briefkopf"><div>${logo ? `<img class="papierlogo" src="${esc(logo)}" alt="">` : ''}${logo && !a.firma ? '' : `<div class="firma">${esc(firma)}</div>`}${a.firma && a.inhaber ? `<div>${esc(a.inhaber)}</div>` : ''}</div>
+      <div class="kontakt">${[a.strasse, a.ort, a.telefon ? 'Tel. ' + a.telefon : '', a.email, a.web].filter(Boolean).map(esc).join('<br>')}</div></div>` : ''}
+    <div class="absenderzeile">${esc(absZeile)}</div>
+    <div class="anschrift">${k.name ? [k.name, k.ansprechpartner, k.strasse, k.ort].filter(Boolean).map(esc).join('<br>') : '<span style="color:#b42318">Kein Kunde im Projekt eingetragen</span>'}</div>
+    <div class="kopfdaten"><div><h1>${esc(dokTitel(d))}${entwurf ? ' <span class="entwurfmarke">ENTWURF</span>' : ''}</h1>${d.titel ? `<div style="font-weight:600;margin-top:2px">${esc(d.titel)}</div>` : ''}</div>
+      <table><tr><td>Nummer</td><td>${esc(d.nr || '—')}</td></tr><tr><td>Datum</td><td>${datumDE(d.datum)}</td></tr>${pr.nr ? `<tr><td>Projekt</td><td>${esc(pr.nr)}</td></tr>` : ''}${baustelle ? `<tr><td>Baustelle</td><td>${esc(baustelle)}</td></tr>` : ''}</table></div>
+    <div class="text">${esc(anrede)}\n\n${esc(d.einleitung || '')}</div>
+    <table class="pos">${kopfzeile}${tabelle}</table>
+    <table class="summen">${summen}</table>
+    ${modusD === 'klein' ? '<p style="margin-top:10px">Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</p>' : ''}
+    ${modusD === 'intern' && d.art === 'abrechnung' ? '<p style="margin-top:10px;color:#666;font-size:11px">Kostenaufstellung ohne Ausweis von Umsatzsteuer.</p>' : ''}
+    <div class="text">${esc(schluss)}</div>
+    <div class="text">Mit freundlichen Grüßen\n\n${esc(a.inhaber || a.firma || '')}</div>
+    ${eigenerKopf ? '' : '<!--'}<div class="fuss"><div>${[a.firma || a.inhaber, a.strasse, a.ort].filter(Boolean).map(esc).join('<br>')}</div><div>${[a.telefon ? 'Tel. ' + a.telefon : '', a.email, a.web].filter(Boolean).map(esc).join('<br>')}</div>
+      <div>${[a.bank, a.iban ? 'IBAN ' + a.iban : '', a.bic ? 'BIC ' + a.bic : ''].filter(Boolean).map(esc).join('<br>')}</div><div>${a.steuernr ? esc(a.steuernr) : ''}</div></div>${eigenerKopf ? '' : '-->'}
+    ${nachweis}${bpZu}
+  </div>`;
+}
+
+async function briefpapierLaden() {
+  const img = $('img[data-bp]');
+  if (!img) return;
+  const voll = await fotoVoll('briefpapier');
+  if (voll && img.isConnected) img.src = voll;
+}
+function druckstilSetzen(mitBp) {
+  let st = $('#druckstil');
+  if (!st) { st = document.createElement('style'); st.id = 'druckstil'; document.head.appendChild(st); }
+  st.textContent = mitBp ? `@media print{@page{size:A4;margin:0}
+    .papier.mit-bp .briefpapier{position:fixed;top:0;left:0;width:210mm;height:297mm}}` : '';
+}
+
+/* =========================================================================
+   Start
+   ========================================================================= */
+window.addEventListener('hashchange', () => { blattSchliessen(true); zeichnen(); });
+window.addEventListener('online', () => { syncAnzeigen(); syncBald(300); });
+window.addEventListener('offline', () => { SY.status = 'offline'; syncAnzeigen(); });
+setInterval(() => { if (!document.hidden && modus() === 'server' && UI.entsperrt !== false) sync(); }, 90000);
+
+(async function start() {
+  await datenLaden();
+  if (modus() === 'lokal') await grunddatenAnlegen();
+  if (!ls.get('bs_pin')) UI.entsperrt = true;
+  zeichnen();
+  if (modus() === 'server' && ls.get('bs_token')) { await sync(); await grunddatenAnlegen(); }
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && window.top === window) {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* z. B. in der Vorschau ohne sw.js */ });
+  }
+})();
+
+</script>
+</body>
+</html>
