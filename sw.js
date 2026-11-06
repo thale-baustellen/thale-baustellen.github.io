@@ -1,5 +1,5 @@
 /* Baustellen-App · Service Worker – hält die App offline verfügbar */
-const VERSION = 'bs-v1.0';
+const VERSION = 'bs-v1.1';
 const DATEIEN = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

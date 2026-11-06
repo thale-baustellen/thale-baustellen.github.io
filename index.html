@@ -148,16 +148,22 @@ nav.unten a.plus svg{width:28px;height:28px}
 .kachelwahl button small{font-weight:400;color:var(--leise);font-size:.8rem}
 
 /* Formulare */
-.formular{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.feld{display:flex;flex-direction:column;gap:5px;grid-column:span 2}
+.formular{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 12px;align-items:start}
+.feld{display:flex;flex-direction:column;gap:6px;grid-column:span 2;min-width:0}
 .feld.halb{grid-column:span 1}
 .feld label,.feldtitel{font-size:.8rem;font-weight:600;color:var(--leise)}
-.feld input,.feld select,.feld textarea{width:100%;padding:11px 12px;border:1px solid var(--rand);border-radius:10px;background:var(--fl);min-height:46px}
+.feld input,.feld select,.feld textarea{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;padding:0 12px;height:48px;border:1px solid var(--rand);border-radius:10px;background:var(--fl);color:var(--text);font-size:16px;text-align:left;-webkit-appearance:none;appearance:none;margin:0}
+.feld textarea{height:auto;padding:11px 12px;line-height:1.4}
+.feld input[type=date],.feld input[type=time]{line-height:46px}
+.feld input::-webkit-date-and-time-value{text-align:left;margin:0}
+.feld input::-webkit-datetime-edit{padding:0}
+.feld input::-webkit-calendar-picker-indicator{opacity:.6}
+.feld select{padding-right:36px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%239ba2ad' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
 .feld textarea{min-height:90px;resize:vertical}
 .feld input:focus,.feld select:focus,.feld textarea:focus{outline:2px solid var(--akz2);outline-offset:-1px;border-color:transparent}
 .feld .hilfe{font-size:.78rem;color:var(--leise)}
 .feld.check{flex-direction:row;align-items:center;gap:10px}
-.feld.check input{width:22px;height:22px;min-height:0;accent-color:var(--akz)}
+.feld.check input{width:24px;height:24px;min-height:0;padding:0;flex:none;-webkit-appearance:auto;appearance:auto;accent-color:var(--akz)}
 .feld.check label{font-size:.95rem;color:var(--text);font-weight:500}
 .vorschau{grid-column:span 2;background:var(--fl2);border-radius:10px;padding:10px 12px;font-size:.9rem;display:flex;flex-wrap:wrap;gap:4px 16px}
 .vorschau b{font-variant-numeric:tabular-nums}
@@ -216,17 +222,29 @@ nav.unten a.plus svg{width:28px;height:28px}
 .ampel-gut{color:var(--gut)}.ampel-warn{color:var(--warn)}.ampel-schlecht{color:var(--schlecht)}
 
 /* Anmeldung / PIN */
-.vollbild{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.anmeldung{width:100%;max-width:400px}
-.anmeldung .logo{width:64px;height:64px;margin-bottom:14px}
-.anmeldung h1{font-size:1.5rem;margin-bottom:6px}
-.anmeldung p{color:var(--leise);margin:0 0 18px}
-.pinpunkte{display:flex;gap:14px;justify-content:center;margin:18px 0 24px}
-.pinpunkte i{width:16px;height:16px;border-radius:50%;border:2px solid var(--leise)}
+.vollbild{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 24px) 24px calc(env(safe-area-inset-bottom) + 24px)}
+.anmeldung{width:100%;max-width:380px}
+.anmeldung .logo{width:56px;height:56px;margin-bottom:18px}
+.anmeldung .logo svg{width:100%;height:100%;display:block;border-radius:14px}
+.anmeldung h1{font-size:1.6rem;margin-bottom:6px}
+.anmeldung p{color:var(--leise);margin:0 0 22px}
+.anmeldung.pin{text-align:center;display:flex;flex-direction:column;align-items:center}
+.anmeldung.pin .logo{width:64px;height:64px;margin-bottom:20px}
+.anmeldung.pin h1{font-size:1.35rem}
+.anmeldung.pin p{margin-bottom:0}
+.pinpunkte{display:flex;gap:18px;justify-content:center;margin:24px 0 30px}
+.pinpunkte i{width:14px;height:14px;border-radius:50%;border:2px solid var(--leise);transition:background .12s,border-color .12s}
 .pinpunkte i.voll{background:var(--akz);border-color:var(--akz)}
-.pinfeld{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:290px;margin:0 auto}
-.pinfeld button{height:64px;border-radius:50%;border:1px solid var(--rand);background:var(--fl);font-size:1.5rem;cursor:pointer}
-.pinfeld button.leer{border:0;background:none;font-size:.9rem;color:var(--leise)}
+.pinfeld{display:grid;grid-template-columns:repeat(3,74px);gap:14px 26px;justify-content:center}
+.pinfeld button{width:74px;height:74px;border-radius:50%;border:0;background:var(--fl2);color:var(--text);font-size:1.75rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .1s,transform .08s}
+.pinfeld button:active{background:var(--fl3);transform:scale(.94)}
+.pinfeld button.leer{background:none;font-size:1.4rem;color:var(--leise)}
+.pinfeld button.platz{visibility:hidden}
+.pinunten{margin-top:14px;background:none;border:0;color:var(--akz);font-size:.95rem;cursor:pointer;padding:8px 12px}
+.anmeldung.pin .fehlertext{min-height:1.3em;margin-top:14px}
+@keyframes wackeln{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pinpunkte.fehler{animation:wackeln .35s}
+.pinpunkte.fehler i{border-color:var(--schlecht)}
 
 /* Aufmaß */
 .amzeile{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:6px 8px;padding:10px 0;border-bottom:1px solid var(--rand);align-items:end}
@@ -296,7 +314,7 @@ nav.unten a.plus svg{width:28px;height:28px}
    Baustellen-App · Kern: Hilfsfunktionen, Datenhaltung, Rechenlogik
    ========================================================================= */
 
-const APP_VERSION = '1.0';
+const APP_VERSION = '1.1';
 
 /* ---------- Hilfen ---------- */
 const $ = (s, el = document) => el.querySelector(s);
@@ -1057,7 +1075,7 @@ function appBereit() {
   return true;
 }
 
-function vollbild(html) { $('#app').innerHTML = `<div class="vollbild"><div class="anmeldung">${html}</div></div>`; }
+function vollbild(html, klasse = '') { $('#app').innerHTML = `<div class="vollbild"><div class="anmeldung ${klasse}">${html}</div></div>`; }
 
 function einrichtungZeigen() {
   vollbild(`<div class="logo">${ICON.logo}</div><h1>Baustellen</h1>
@@ -1160,11 +1178,14 @@ function pinZeigen(art) {
   UI.pinArt = art; pinEingabe = '';
   const titel = { pruefen: 'PIN eingeben', neu: 'PIN festlegen', wiederholen: 'PIN wiederholen' }[art];
   const text = { pruefen: 'Zum Entsperren der App.', neu: 'Vier Ziffern, mit denen du die App künftig öffnest.', wiederholen: 'Zur Sicherheit noch einmal.' }[art];
-  vollbild(`<div class="logo">${ICON.logo}</div><h1>${titel}</h1><p>${text}</p>
+  const name = ((ls.getJ('bs_benutzer') || {}).name || '').split(' ')[0];
+  const gruss = art === 'pruefen' && name ? 'Hallo ' + name : titel;
+  vollbild(`<div class="logo">${ICON.logo}</div><h1>${esc(gruss)}</h1><p>${art === 'pruefen' ? 'PIN eingeben' : text}</p>
     <div class="pinpunkte">${[0, 1, 2, 3].map(() => '<i></i>').join('')}</div>
-    <div class="pinfeld">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pin" data-z="${n}">${n}</button>`).join('')}
-    <button class="leer" data-a="pinVergessen">${art === 'pruefen' ? 'Vergessen?' : ''}</button><button data-a="pin" data-z="0">0</button><button class="leer" data-a="pin" data-z="weg">⌫</button></div>
-    <div id="pinFehler" class="fehlertext" style="text-align:center"></div>`);
+    <div class="pinfeld">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button data-a="pin" data-z="${n}" aria-label="${n}">${n}</button>`).join('')}
+    <button class="leer platz" tabindex="-1" aria-hidden="true"></button><button data-a="pin" data-z="0" aria-label="0">0</button><button class="leer" data-a="pin" data-z="weg" aria-label="Löschen">⌫</button></div>
+    <div id="pinFehler" class="fehlertext"></div>
+    ${art === 'pruefen' ? '<button class="pinunten" data-a="pinVergessen">PIN vergessen?</button>' : ''}`, 'pin');
   $('#app').onkeydown = ev => { if (/^\d$/.test(ev.key)) pinTaste(ev.key); else if (ev.key === 'Backspace') pinTaste('weg'); };
   $('#app').tabIndex = -1; $('#app').focus();
 }
@@ -1181,7 +1202,7 @@ async function pinTaste(z) {
     } else {
       const fehl = +ls.get('bs_pinfehl', 0) + 1; ls.set('bs_pinfehl', fehl);
       if (fehl >= 5) { ls.set('bs_pin', null); ls.set('bs_pinfehl', 0); if (modus() === 'server') { ls.set('bs_token', null); anmeldungZeigen(); toast('5 falsche PINs – bitte neu anmelden.'); return; } }
-      setTimeout(() => { $$('.pinpunkte i').forEach(i => i.classList.remove('voll')); $('#pinFehler').textContent = 'Falsche PIN (' + fehl + ' von 5 Versuchen).'; }, 150);
+      setTimeout(() => { const pp = $('.pinpunkte'); pp.classList.remove('fehler'); void pp.offsetWidth; pp.classList.add('fehler'); $$('.pinpunkte i').forEach(i => i.classList.remove('voll')); $('#pinFehler').textContent = 'Falsche PIN – noch ' + (5 - fehl) + ' Versuch' + (5 - fehl === 1 ? '' : 'e'); }, 150);
     }
   } else if (UI.pinArt === 'neu') { pinErst = pin; pinZeigen('wiederholen'); }
   else if (UI.pinArt === 'wiederholen') {
@@ -1639,8 +1660,9 @@ function zeitBearbeiten(z, { pid, werte, nachSpeichern }) {
       { n: 'pause', l: 'Pause (Minuten)', t: 'zahl', halb: true },
       { n: 'von', l: 'Von', t: 'zeit', halb: true },
       { n: 'bis', l: 'Bis', t: 'zeit', halb: true },
-      { n: 'stunden', l: 'Stunden', t: 'zahl', halb: true, h: 'aus Von/Bis berechnet – ohne Uhrzeiten direkt eintragen' },
+      { n: 'stunden', l: 'Stunden', t: 'zahl', halb: true },
       { n: 'person', l: 'Person', halb: true },
+      { t: 'html', html: '<p class="leise klein" style="grid-column:span 2;margin:-6px 0 0">Stunden werden aus Von/Bis berechnet. Ohne Uhrzeiten einfach direkt eintragen.</p>' },
       { n: 'lohnartId', l: 'Lohnart', t: 'select', o: optionen(lohnarten().map(l => [l.id, l.name])), halb: true },
       { n: 'satz', l: 'Stundensatz €', t: 'zahl', halb: true },
       { n: 'taetigkeit', l: 'Tätigkeit', p: 'z. B. Balkenlage verlegt' },
